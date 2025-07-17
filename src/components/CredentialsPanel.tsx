@@ -10,6 +10,8 @@ export const CredentialsPanel: React.FC = () => {
   const [showForm, setShowForm] = useState(false);
   const [currentTaskId, setCurrentTaskId] = useState<string | null>(null);
   const [loginLoading, setLoginLoading] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     credential_name: '',
     username: '',
@@ -30,17 +32,54 @@ export const CredentialsPanel: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  };
-  const handleSubmit = async (e: React.FormEvent) => {
+  };  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await twitterAPI.saveCredentials(formData);
+      if (editingId !== null) {
+        // Update existing credential
+        await twitterAPI.updateCredentials(editingId, formData);
+        setEditingId(null);
+      } else {
+        // Create new credential
+        await twitterAPI.saveCredentials(formData);
+      }
       setFormData({ credential_name: '', username: '', password: '' });
       setShowForm(false);
       fetchCredentials();
     } catch (error) {
       console.error('Error saving credentials:', error);
     }
+  };
+
+  const handleEdit = (cred: TwitterSettings) => {
+    setEditingId(cred.id);
+    setFormData({
+      credential_name: cred.credential_name,
+      username: cred.username,
+      password: '', // Don't pre-fill password for security
+    });
+    setShowForm(true);
+  };
+  const handleDelete = async (id: string) => {
+    if (deleteConfirm === id) {
+      try {
+        await twitterAPI.deleteCredentials(id);
+        setDeleteConfirm(null);
+        fetchCredentials();
+      } catch (error) {
+        console.error('Error deleting credentials:', error);
+      }
+    } else {
+      setDeleteConfirm(id);
+      // Auto-cancel delete confirmation after 3 seconds
+      setTimeout(() => setDeleteConfirm(null), 3000);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setFormData({ credential_name: '', username: '', password: '' });
+    setShowForm(false);
   };
 
   const handleLogin = async (credentialName: string) => {
@@ -72,17 +111,25 @@ export const CredentialsPanel: React.FC = () => {
           <div className="flex items-center space-x-3">
             <div className="p-2 bg-blue-100 rounded-full">
               <Key className="w-5 h-5 text-blue-600" />
-            </div>
-            <div>
+            </div>            <div>
               <h2 className="text-xl font-semibold text-gray-900">Twitter Credentials</h2>
               <p className="text-sm text-gray-500">Manage your Twitter login credentials</p>
             </div>
-          </div>          <button
-            onClick={() => setShowForm(!showForm)}
+          </div>
+          <button
+            onClick={() => {
+              if (editingId !== null) {
+                handleCancelEdit();
+              } else {
+                setShowForm(!showForm);
+              }
+            }}
             className="flex items-center space-x-2 px-4 py-2 bg-[#0fbcf9] text-white rounded-xl hover:bg-[#0fbcf9]/90 transition-all duration-200 shadow-md hover:shadow-lg backdrop-blur-sm"
           >
             <Plus className="w-4 h-4" />
-            <span className="text-sm font-medium">Add New</span>
+            <span className="text-sm font-medium">
+              {editingId !== null ? 'Cancel Edit' : 'Add New'}
+            </span>
           </button>
         </div>      {showForm && (
         <form onSubmit={handleSubmit} className="mb-6 p-6 bg-gray-50/50 backdrop-blur-sm rounded-xl border border-gray-200/30">
@@ -126,19 +173,19 @@ export const CredentialsPanel: React.FC = () => {
                 placeholder="••••••••"
               />
             </div>
-          </div>
-          <div className="flex justify-end space-x-3 mt-6">
+          </div>          <div className="flex justify-end space-x-3 mt-6">
             <button
               type="button"
-              onClick={() => setShowForm(false)}
+              onClick={handleCancelEdit}
               className="px-6 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-all duration-200"
             >
               Cancel
-            </button>            <button
+            </button>
+            <button
               type="submit"
               className="px-6 py-3 text-sm font-medium text-white bg-[#0fbcf9] rounded-xl hover:bg-[#0fbcf9]/90 transition-all duration-200 shadow-md hover:shadow-lg backdrop-blur-sm"
             >
-              Save Credentials
+              {editingId !== null ? 'Update Credentials' : 'Save Credentials'}
             </button>
           </div>
         </form>
@@ -167,8 +214,7 @@ export const CredentialsPanel: React.FC = () => {
                     <p className="text-sm text-gray-500">{cred.username}</p>
                   </div>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <button
+                <div className="flex items-center space-x-2">                  <button
                     onClick={() => handleLogin(cred.credential_name)}
                     disabled={loginLoading === cred.credential_name || currentTaskId !== null}
                     className="flex items-center space-x-2 px-3 py-2 bg-[#0fbcf9] text-white rounded-lg hover:bg-[#0fbcf9]/90 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium backdrop-blur-sm"
@@ -186,16 +232,22 @@ export const CredentialsPanel: React.FC = () => {
                     )}
                   </button>
                   <button 
-                    className="p-2 text-gray-400 hover:text-[#0fbcf9] transition-colors disabled:opacity-50" 
-                    disabled
-                    title="Edit functionality coming soon"
+                    onClick={() => handleEdit(cred)}
+                    disabled={currentTaskId !== null || loginLoading !== null}
+                    className="p-2 text-gray-400 hover:text-[#0fbcf9] transition-colors disabled:opacity-50 disabled:cursor-not-allowed" 
+                    title="Edit credentials"
                   >
                     <Edit2 className="w-4 h-4" />
                   </button>
                   <button 
-                    className="p-2 text-gray-400 hover:text-red-600 transition-colors disabled:opacity-50"
-                    disabled
-                    title="Delete functionality coming soon"
+                    onClick={() => handleDelete(cred.id)}
+                    disabled={currentTaskId !== null || loginLoading !== null}
+                    className={`p-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+                      deleteConfirm === cred.id 
+                        ? 'text-red-600 hover:text-red-700' 
+                        : 'text-gray-400 hover:text-red-600'
+                    }`}
+                    title={deleteConfirm === cred.id ? 'Click again to confirm delete' : 'Delete credentials'}
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
