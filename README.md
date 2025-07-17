@@ -1,6 +1,31 @@
-# Getting Started with Create React App
+# Twitter Scraper Dashboard
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A modern, responsive dashboard built with React, TypeScript, and Tailwind CSS for managing and monitoring Twitter scraping operations.
+
+## Features
+
+- **Bento Grid Layout**: Modern, responsive grid layout inspired by macOS widgets
+- **Credentials Management**: Secure storage and management of Twitter login credentials
+- **Twitter Authentication**: Easy login with saved credentials
+- **User Search**: Search for Twitter users with real-time results
+- **Timeline Viewer**: Fetch and display user timelines with tweet analysis
+- **Followers/Following**: View follower and following lists
+- **Task Monitoring**: Real-time monitoring of background scraping tasks
+- **System Status**: Monitor API health and task statistics
+
+## Technology Stack
+
+- **Frontend**: React 18 with TypeScript
+- **Styling**: Tailwind CSS with custom components
+- **Icons**: Lucide React icons
+- **HTTP Client**: Axios for API communication
+- **Date Handling**: date-fns for date formatting
+
+## Prerequisites
+
+- Node.js 16 or higher
+- npm or yarn
+- Running Twitter Scraper API backend (see backend README)
 
 ## Available Scripts
 
