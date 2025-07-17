@@ -49,80 +49,116 @@ export const UserSearchPanel: React.FC = () => {
       return (num / 1000).toFixed(1) + 'K';
     }
     return num.toString();
-  };
-  return (
-    <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 p-8">
-      <div className="flex items-center justify-between mb-8">
-        <div className="flex items-center space-x-3">
-          <div className="p-2 bg-gradient-to-br from-purple-50 to-violet-50 rounded-xl border border-purple-100">
-            <Search className="w-5 h-5 text-purple-600" />
+  }; return (
+    <div className="space-y-6">
+      {/* Header Container - Separate Bento Card */}
+      <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-200/50 p-6 hover:shadow-xl transition-all duration-300">
+        <div className="flex items-center space-x-4">
+          <div className="p-3 bg-gradient-to-br from-[#0fbcf9]/10 to-[#0fbcf9]/5 rounded-2xl border border-[#0fbcf9]/20">
+            <Search className="w-6 h-6 text-[#0fbcf9]" />
           </div>
           <div>
-            <h2 className="text-xl font-semibold text-gray-900">Search Users</h2>
-            <p className="text-sm text-gray-500">Find Twitter users by username or display name</p>
+            <h2 className="text-2xl font-bold text-gray-900">Search Users</h2>
+            <p className="text-sm text-gray-500 mt-1">Find Twitter users by username or display name</p>
           </div>
         </div>
-      </div>      <form onSubmit={handleSearch} className="space-y-6 mb-8">
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-3">
-            Search Query
-          </label>
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white/80 backdrop-blur-sm transition-all duration-200 hover:bg-white"
-            placeholder="Enter username or name..."
-            required
-          />
-        </div>
+      </div>
 
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-3">
-            Limit Results
-          </label>
-          <select
-            value={searchLimit}
-            onChange={(e) => setSearchLimit(parseInt(e.target.value))}
-            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white/80 backdrop-blur-sm transition-all duration-200 hover:bg-white"
-          >
-            <option value={5}>5 users</option>
-            <option value={10}>10 users</option>
-            <option value={20}>20 users</option>
-            <option value={50}>50 users</option>
-          </select>
-        </div>
+      {/* Bento Grid Form Layout */}
+      <form onSubmit={handleSearch} className="mb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+          {/* Search Input - Takes most space */}
+          <div className="lg:col-span-6 xl:col-span-7">
+            <div className="bg-gradient-to-br from-[#0fbcf9]/10 to-[#0fbcf9]/5 backdrop-blur-sm rounded-2xl border border-[#0fbcf9]/20 p-6 h-full hover:from-[#0fbcf9]/15 hover:to-[#0fbcf9]/10 transition-all duration-200 shadow-sm hover:shadow-md">
+              <div className="flex items-center space-x-3 mb-3">
+                <div className="p-1.5 bg-[#0fbcf9]/10 rounded-lg">
+                  <Search className="w-4 h-4 text-[#0fbcf9]" />
+                </div>
+                <label className="text-sm font-semibold text-gray-700">
+                  Search Query
+                </label>
+              </div>
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#0fbcf9] focus:border-transparent bg-white/80 backdrop-blur-sm transition-all duration-200 hover:bg-white text-sm"
+                placeholder="Enter username or name..."
+                required
+              />
+            </div>
+          </div>
 
-        <button
-          type="submit"
-          disabled={isLoading || !searchQuery.trim()}
-          className="w-full flex items-center justify-center space-x-2 px-6 py-3 text-sm font-semibold text-white bg-gradient-to-r from-purple-600 to-violet-600 rounded-xl hover:from-purple-700 hover:to-violet-700 disabled:from-gray-300 disabled:to-gray-400 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]"
-        >
-          {isLoading ? (
-            <>
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-              <span>Searching...</span>
-            </>
-          ) : (
-            <>
-              <Search className="w-4 h-4" />
-              <span>Search Users</span>
-            </>
-          )}
-        </button>
+          {/* Limit Selector - Medium space */}
+          <div className="lg:col-span-3 xl:col-span-2">
+            <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-gray-200/50 p-6 h-full hover:bg-white/90 transition-all duration-200 shadow-sm hover:shadow-md">
+              <div className="flex items-center space-x-3 mb-3">
+                <div className="p-1.5 bg-gray-100 rounded-lg">
+                  <Users className="w-4 h-4 text-gray-600" />
+                </div>
+                <label className="text-sm font-semibold text-gray-700">
+                  Limit
+                </label>
+              </div>
+              <select
+                value={searchLimit}
+                onChange={(e) => setSearchLimit(parseInt(e.target.value))}
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#0fbcf9] focus:border-transparent bg-white/80 backdrop-blur-sm transition-all duration-200 hover:bg-white text-sm"
+              >
+                <option value={5}>5 users</option>
+                <option value={10}>10 users</option>
+                <option value={20}>20 users</option>
+                <option value={50}>50 users</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Search Button - Takes remaining space */}
+          <div className="lg:col-span-3 xl:col-span-3">
+            <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-gray-200/50 p-6 h-full hover:bg-white/90 transition-all duration-200 shadow-sm hover:shadow-md">
+              <div className="flex items-center space-x-3 mb-3">
+                <div className="p-1.5 bg-[#0fbcf9]/20 rounded-lg">
+                  <Search className="w-4 h-4 text-[#0fbcf9]" />
+                </div>
+                <label className="text-sm font-semibold text-gray-700">
+                  Action
+                </label>
+              </div>
+              <button
+                type="submit"
+                disabled={isLoading || !searchQuery.trim()}
+                className="w-full flex items-center justify-center space-x-2 px-6 py-3 text-sm font-semibold text-white bg-[#0fbcf9] rounded-xl hover:bg-[#0fbcf9]/90 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg backdrop-blur-sm"
+              >
+                {isLoading ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    <span>Searching...</span>
+                  </>
+                ) : (
+                  <>
+                    <Search className="w-4 h-4" />
+                    <span>Search</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
       </form>      {currentTaskId && (
-        <div className="mb-8 p-4 bg-purple-50/50 backdrop-blur-sm rounded-xl border border-purple-100">
+        <div className="mb-8 p-4 bg-[#0fbcf9]/10 backdrop-blur-sm rounded-xl border border-[#0fbcf9]/20">
           <TaskMonitor
             taskId={currentTaskId}
             onComplete={handleTaskComplete}
             onError={handleTaskError}
           />
         </div>
-      )}      {searchResults.length > 0 && (
+      )}
+
+      {searchResults.length > 0 && (
         <div className="space-y-4">
           <div className="flex items-center space-x-2">
-            <div className="p-1.5 bg-gradient-to-br from-purple-50 to-violet-50 rounded-lg border border-purple-100">
-              <Users className="w-4 h-4 text-purple-600" />
+            <div className="p-1.5 bg-[#0fbcf9]/10 rounded-lg border border-[#0fbcf9]/20">
+              <Users className="w-4 h-4 text-[#0fbcf9]" />
             </div>
             <h3 className="font-semibold text-gray-900">Search Results ({searchResults.length})</h3>
           </div>
@@ -166,8 +202,7 @@ export const UserSearchPanel: React.FC = () => {
               </div>
             ))}
           </div>
-        </div>
-      )}
+        </div>)}
     </div>
   );
 };
