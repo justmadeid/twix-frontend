@@ -1,8 +1,97 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { twitterAPI } from '../services/api';
 import { TwitterSettings } from '../types/api';
 import { TaskMonitor } from './TaskMonitor';
-import { Settings, Plus, Edit2, Trash2, Key, LogIn, User } from 'lucide-react';
+import { Settings, Plus, Edit2, Trash2, Key, LogIn, User, AlertTriangle, X } from 'lucide-react';
+
+// Delete Confirmation Modal Component
+const DeleteConfirmationModal: React.FC<{
+  credential: TwitterSettings;
+  onConfirm: () => void;
+  onCancel: () => void;
+}> = ({ credential, onConfirm, onCancel }) => {
+  // Handle ESC key press
+  useEffect(() => {
+    const handleEscKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        onCancel();
+      }
+    };
+
+    document.addEventListener('keydown', handleEscKey);
+    return () => {
+      document.removeEventListener('keydown', handleEscKey);
+    };
+  }, [onCancel]);
+
+  // Handle backdrop click
+  const handleBackdropClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      onCancel();
+    }
+  };
+
+  return createPortal(
+    <div 
+      className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9999] flex items-center justify-center p-4"
+      onClick={handleBackdropClick}
+    >
+      <div className="bg-white/95 backdrop-blur-lg rounded-2xl shadow-2xl border border-gray-200/50 max-w-md w-full mx-4">
+        <div className="p-6">
+          <div className="flex items-center space-x-3 mb-4">
+            <div className="p-2 bg-red-100 rounded-full">
+              <AlertTriangle className="w-5 h-5 text-red-600" />
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900">Delete Credentials</h3>
+              <p className="text-sm text-gray-500">This action cannot be undone</p>
+            </div>
+            <button
+              onClick={onCancel}
+              className="ml-auto p-1 rounded-full hover:bg-gray-100 transition-colors"
+            >
+              {/* <X className="w-4 h-4 text-gray-400" /> */}
+            </button>
+          </div>
+
+          <div className="mb-6">
+            <p className="text-sm text-gray-700 mb-3">
+              Are you sure you want to delete the credentials for:
+            </p>
+            <div className="p-3 bg-gray-50/80 backdrop-blur-sm rounded-xl border border-gray-200/50">
+              <div className="flex items-center space-x-3">
+                <div className="p-1.5 bg-[#0fbcf9]/10 rounded-full">
+                  <User className="w-3 h-3 text-[#0fbcf9]" />
+                </div>
+                <div>
+                  <p className="font-medium text-gray-900">{credential.credential_name}</p>
+                  <p className="text-sm text-gray-500">{credential.username}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex space-x-3">
+            <button
+              onClick={onCancel}
+              className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-all duration-200"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={onConfirm}
+              className="flex-1 px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-xl hover:bg-red-700 transition-all duration-200 shadow-md hover:shadow-lg"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>,
+    document.body
+  );
+};
 
 export const CredentialsPanel: React.FC = () => {
   const [credentials, setCredentials] = useState<TwitterSettings[]>([]);
@@ -11,7 +100,10 @@ export const CredentialsPanel: React.FC = () => {
   const [currentTaskId, setCurrentTaskId] = useState<string | null>(null);
   const [loginLoading, setLoginLoading] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [deleteModal, setDeleteModal] = useState<{ show: boolean; credential: TwitterSettings | null }>({
+    show: false,
+    credential: null
+  });
   const [formData, setFormData] = useState({
     credential_name: '',
     username: '',
@@ -59,21 +151,24 @@ export const CredentialsPanel: React.FC = () => {
       password: '', // Don't pre-fill password for security
     });
     setShowForm(true);
+  };  const handleDelete = async (credential: TwitterSettings) => {
+    setDeleteModal({ show: true, credential });
   };
-  const handleDelete = async (id: string) => {
-    if (deleteConfirm === id) {
-      try {
-        await twitterAPI.deleteCredentials(id);
-        setDeleteConfirm(null);
-        fetchCredentials();
-      } catch (error) {
-        console.error('Error deleting credentials:', error);
-      }
-    } else {
-      setDeleteConfirm(id);
-      // Auto-cancel delete confirmation after 3 seconds
-      setTimeout(() => setDeleteConfirm(null), 3000);
+
+  const confirmDelete = async () => {
+    if (!deleteModal.credential) return;
+    
+    try {
+      await twitterAPI.deleteCredentials(deleteModal.credential.id);
+      setDeleteModal({ show: false, credential: null });
+      fetchCredentials();
+    } catch (error) {
+      console.error('Error deleting credentials:', error);
     }
+  };
+
+  const cancelDelete = () => {
+    setDeleteModal({ show: false, credential: null });
   };
 
   const handleCancelEdit = () => {
@@ -238,16 +333,11 @@ export const CredentialsPanel: React.FC = () => {
                     title="Edit credentials"
                   >
                     <Edit2 className="w-4 h-4" />
-                  </button>
-                  <button 
-                    onClick={() => handleDelete(cred.id)}
+                  </button>                  <button 
+                    onClick={() => handleDelete(cred)}
                     disabled={currentTaskId !== null || loginLoading !== null}
-                    className={`p-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
-                      deleteConfirm === cred.id 
-                        ? 'text-red-600 hover:text-red-700' 
-                        : 'text-gray-400 hover:text-red-600'
-                    }`}
-                    title={deleteConfirm === cred.id ? 'Click again to confirm delete' : 'Delete credentials'}
+                    className="p-2 text-gray-400 hover:text-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    title="Delete credentials"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -256,9 +346,7 @@ export const CredentialsPanel: React.FC = () => {
             ))
           )}
         </div>
-      )}
-
-      {/* Task Monitor for Login */}
+      )}      {/* Task Monitor for Login */}
       {currentTaskId && (
         <div className="mt-6">
           <TaskMonitor
@@ -269,6 +357,15 @@ export const CredentialsPanel: React.FC = () => {
         </div>
       )}
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {deleteModal.show && deleteModal.credential && (
+        <DeleteConfirmationModal
+          credential={deleteModal.credential}
+          onConfirm={confirmDelete}
+          onCancel={cancelDelete}
+        />
+      )}
     </div>
   );
 };

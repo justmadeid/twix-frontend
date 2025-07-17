@@ -53,10 +53,23 @@ class TwitterScraperAPI {
     );
     return response.data;
   }
-
   async getCredentials(): Promise<ApiResponse<TwitterSettings[]>> {
     const response: AxiosResponse<ApiResponse<TwitterSettings[]>> = await this.api.get(
       '/twitter/settings'
+    );
+    return response.data;
+  }
+  async updateCredentials(id: string, credentials: TwitterCredentials): Promise<ApiResponse<TwitterSettings>> {
+    const response: AxiosResponse<ApiResponse<TwitterSettings>> = await this.api.put(
+      `/twitter/settings/${id}`,
+      credentials
+    );
+    return response.data;
+  }
+
+  async deleteCredentials(id: string): Promise<ApiResponse<null>> {
+    const response: AxiosResponse<ApiResponse<null>> = await this.api.delete(
+      `/twitter/settings/${id}`
     );
     return response.data;
   }
