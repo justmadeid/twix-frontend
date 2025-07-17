@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { TwitterSettings } from './types/api';
 import { twitterAPI } from './services/api';
 import { CredentialsPanel } from './components/CredentialsPanel';
-import { LoginPanel } from './components/LoginPanel';
 import { UserSearchPanel } from './components/UserSearchPanel';
 import { TimelinePanel } from './components/TimelinePanel';
 import { FollowersPanel } from './components/FollowersPanel';
@@ -26,7 +25,6 @@ import {
 type PanelId =
   | 'home'
   | 'credentials'
-  | 'login'
   | 'search'
   | 'timeline'
   | 'followers'
@@ -61,25 +59,18 @@ function App() {
   const handleLoginSuccess = () => {
     setIsLoggedIn(true);
   };
-
   const menuItems: MenuItem[] = [
     { id: 'home', label: 'Dashboard', icon: Home },
-    { id: 'credentials', label: 'Credentials', icon: Key },
-    { id: 'login', label: 'Login', icon: LogIn },
+    { id: 'credentials', label: 'Credentials & Login', icon: Key },
     { id: 'search', label: 'User Search', icon: Search },
     { id: 'timeline', label: 'Timeline', icon: Clock },
     { id: 'followers', label: 'Followers', icon: Users },
     { id: 'status', label: 'Status', icon: Activity },
   ];
-
   const renderActivePanel = () => {
     switch (activePanel) {
       case 'credentials':
         return <CredentialsPanel />;
-      case 'login':
-        return (
-          <LoginPanel credentials={credentials} onLoginSuccess={handleLoginSuccess} />
-        );
       case 'search':
         return <UserSearchPanel />;
       case 'timeline':
@@ -116,17 +107,16 @@ function App() {
               </div>
             </div>
 
-            {/* Quick Actions */}
-            <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-gray-200/50 shadow-lg p-6">
+            {/* Quick Actions */}            <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-gray-200/50 shadow-lg p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
               <div className="space-y-3">
                 {menuItems.slice(1).map((item) => (
                   <button
                     key={item.id}
                     onClick={() => setActivePanel(item.id)}
-                    className="w-full flex items-center space-x-3 p-3 rounded-xl hover:bg-gray-50 transition-colors duration-200"
+                    className="w-full flex items-center space-x-3 p-3 rounded-xl hover:bg-[#0fbcf9]/10 transition-colors duration-200"
                   >
-                    <item.icon className="w-5 h-5 text-gray-600" />
+                    <item.icon className="w-5 h-5 text-[#0fbcf9]" />
                     <span className="text-sm text-gray-700">{item.label}</span>
                     <ChevronRight className="w-4 h-4 text-gray-400 ml-auto" />
                   </button>
@@ -158,10 +148,53 @@ function App() {
         );
     }
   };
-
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
-      <div className="absolute inset-0 bg-[#0fbcf9]/5 backdrop-blur-3xl"></div>
+    <div className="min-h-screen bg-gray-50 p-4 relative">
+      {/* Background with grid pattern */}
+      <div className="absolute inset-0 bg-[#0fbcf9]/5 backdrop-blur-3xl"></div>      <div 
+        className="absolute inset-0 opacity-60"
+        style={{
+          backgroundImage: `
+            linear-gradient(to right, #d1d5db 1px, transparent 1px),
+            linear-gradient(to bottom, #d1d5db 1px, transparent 1px)
+          `,
+          backgroundSize: '20px 20px',
+          maskImage: `
+            repeating-linear-gradient(
+              0deg,
+              transparent,
+              transparent 4px,
+              black 4px,
+              black 6px
+            ),
+            repeating-linear-gradient(
+              90deg,
+              transparent,
+              transparent 4px,
+              black 4px,
+              black 6px
+            )
+          `,
+          WebkitMaskImage: `
+            repeating-linear-gradient(
+              0deg,
+              transparent,
+              transparent 4px,
+              black 4px,
+              black 6px
+            ),
+            repeating-linear-gradient(
+              90deg,
+              transparent,
+              transparent 4px,
+              black 4px,
+              black 6px
+            )
+          `,
+          maskComposite: 'intersect',
+          WebkitMaskComposite: 'source-in'
+        }}
+      ></div>
       <div className="relative z-10">
         {/* Floating Header */}
         <header className="bg-white/80 backdrop-blur-sm rounded-2xl border border-gray-200/50 shadow-lg mb-6 sticky top-4 z-30">
