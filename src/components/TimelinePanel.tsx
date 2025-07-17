@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { twitterAPI } from '../services/api';
 import { TimelineData, Tweet } from '../types/api';
-import { TaskMonitor } from './TaskMonitor';
+import TaskMonitor from './TaskMonitor';
 import { MessageCircle, Heart, Repeat2, User } from 'lucide-react';
 import { format } from 'date-fns';
 

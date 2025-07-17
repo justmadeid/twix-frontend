@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { twitterAPI } from '../services/api';
 import { TwitterUser } from '../types/api';
-import { TaskMonitor } from './TaskMonitor';
+import TaskMonitor from './TaskMonitor';
 import { UserPlus, UserMinus, User } from 'lucide-react';
 
 export const FollowersPanel: React.FC = () => {

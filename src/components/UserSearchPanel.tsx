@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { twitterAPI } from '../services/api';
 import { TwitterUser } from '../types/api';
-import { TaskMonitor } from './TaskMonitor';
+import TaskMonitor from './TaskMonitor';
 import { Search, Users, User } from 'lucide-react';
 
 export const UserSearchPanel: React.FC = () => {
@@ -27,11 +27,42 @@ export const UserSearchPanel: React.FC = () => {
       console.error('Search failed:', error);
       setIsLoading(false);
     }
-  };
-
-  const handleTaskComplete = (result: any) => {
+  };  const handleTaskComplete = (result: any) => {
     console.log('Search completed:', result);
-    setSearchResults(result.users || []);
+    console.log('Result type:', typeof result);
+    console.log('Result keys:', Object.keys(result || {}));
+
+    // Handle different response structures
+    let users = [];
+    if (result?.users) {
+      users = result.users;
+    } else if (Array.isArray(result)) {
+      users = result;
+    } else if (result?.data?.users) {
+      users = result.data.users;
+    }
+
+    console.log('Users found:', users);
+    console.log('Users count:', users.length);
+
+    // Map the API response to match our TwitterUser interface
+    const mappedUsers = (users || []).map((user: any) => {
+      console.log('Mapping user:', user);
+      return {
+        id: user.user_id || user.id,
+        username: user.screen_name || user.username,
+        display_name: user.name || user.display_name,
+        bio: user.bio || '',
+        followers_count: user.followers || user.followers_count || 0,
+        following_count: user.following || user.following_count || 0,
+        verified: user.verified || false,
+        profile_image_url: user.avatar || user.profile_image_url,
+        created_at: user.created || user.created_at
+      };
+    });
+
+    console.log('Mapped users:', mappedUsers);
+    setSearchResults(mappedUsers);
     setCurrentTaskId(null);
     setIsLoading(false);
   };
@@ -143,8 +174,10 @@ export const UserSearchPanel: React.FC = () => {
               </button>
             </div>
           </div>
-        </div>
-      </form>      {currentTaskId && (
+        </div>        </form>
+
+      {/* Task Monitor Section */}
+      {currentTaskId && (
         <div className="mb-8 p-4 bg-[#0fbcf9]/10 backdrop-blur-sm rounded-xl border border-[#0fbcf9]/20">
           <TaskMonitor
             taskId={currentTaskId}
@@ -154,14 +187,19 @@ export const UserSearchPanel: React.FC = () => {
         </div>
       )}
 
+      {/* Results Container - Separate Bento Card */}
       {searchResults.length > 0 && (
-        <div className="space-y-4">
-          <div className="flex items-center space-x-2">
-            <div className="p-1.5 bg-[#0fbcf9]/10 rounded-lg border border-[#0fbcf9]/20">
-              <Users className="w-4 h-4 text-[#0fbcf9]" />
+        <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-200/50 p-6 hover:shadow-xl transition-all duration-300">
+          <div className="flex items-center space-x-4 mb-6">
+            <div className="p-3 bg-gradient-to-br from-[#0fbcf9]/10 to-[#0fbcf9]/5 rounded-2xl border border-[#0fbcf9]/20">
+              <Users className="w-6 h-6 text-[#0fbcf9]" />
             </div>
-            <h3 className="font-semibold text-gray-900">Search Results ({searchResults.length})</h3>
+            <div>
+              <h3 className="text-xl font-bold text-gray-900">Search Results</h3>
+              <p className="text-sm text-gray-500 mt-1">Found {searchResults.length} users</p>
+            </div>
           </div>
+
           <div className="max-h-96 overflow-y-auto custom-scrollbar space-y-3">
             {searchResults.map((user) => (
               <div key={user.id} className="flex items-center space-x-4 p-4 bg-white/60 backdrop-blur-sm rounded-xl border border-white/40 hover:bg-white/80 transition-all duration-200">
@@ -202,7 +240,8 @@ export const UserSearchPanel: React.FC = () => {
               </div>
             ))}
           </div>
-        </div>)}
+        </div>
+      )}
     </div>
   );
 };

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { twitterAPI } from '../services/api';
 import { TwitterSettings } from '../types/api';
-import { TaskMonitor } from './TaskMonitor';
+import TaskMonitor from './TaskMonitor';
 import { Settings, Plus, Edit2, Trash2, Key, LogIn, User, AlertTriangle, X } from 'lucide-react';
 
 // Delete Confirmation Modal Component

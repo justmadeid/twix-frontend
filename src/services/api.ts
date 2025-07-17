@@ -11,11 +11,10 @@ import {
 class TwitterScraperAPI {
   private api: AxiosInstance;
   private baseURL = 'http://localhost:8000/api/v1';
-
   constructor() {
     this.api = axios.create({
       baseURL: this.baseURL,
-      timeout: 30000,
+      timeout: 15000, // Reduced from 30 seconds to 15 seconds
       headers: {
         'Content-Type': 'application/json',
       },
@@ -81,13 +80,13 @@ class TwitterScraperAPI {
       request
     );
     return response.data;
-  }
-
-  // Task Management
+  }  // Task Management
   async getTaskStatus(taskId: string): Promise<ApiResponse<TaskStatus>> {
     const response: AxiosResponse<ApiResponse<TaskStatus>> = await this.api.get(
-      `/twitter/tasks/${taskId}`
+      `/twitter/tasks/${taskId}`,
+      { timeout: 10000 } // 10 second timeout for task status requests
     );
+    console.log('Task status API response:', response.data);
     return response.data;
   }
 

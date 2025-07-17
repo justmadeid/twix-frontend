@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { twitterAPI } from '../services/api';
 import { TwitterSettings } from '../types/api';
-import { TaskMonitor } from './TaskMonitor';
+import TaskMonitor from './TaskMonitor';
 import { LogIn, User } from 'lucide-react';
 
 interface LoginPanelProps {
