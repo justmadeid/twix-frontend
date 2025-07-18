@@ -21,6 +21,7 @@ code {
   .line-clamp-3 {
     display: -webkit-box;
     -webkit-line-clamp: 3;
+    line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
@@ -28,6 +29,7 @@ code {
   .line-clamp-4 {
     display: -webkit-box;
     -webkit-line-clamp: 4;
+    line-clamp: 4;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
@@ -50,14 +52,51 @@ code {
   }
   
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    background-color: rgba(15, 188, 249, 0.3);
+    background: rgba(15, 188, 249, 0.3);
     border-radius: 3px;
   }
   
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background-color: rgba(15, 188, 249, 0.5);
+    background: rgba(15, 188, 249, 0.5);
   }
-
+  
+  /* Improved tweet card utilities */
+  .tweet-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  
+  .tweet-card .tweet-content {
+    flex-grow: 1;
+  }
+  
+  /* Better content spacing for different card sizes */
+  .tweet-card-compact {
+    padding: 1rem;
+  }
+  
+  .tweet-card-compact .tweet-header {
+    margin-bottom: 0.75rem;
+  }
+  
+  .tweet-card-compact .tweet-content {
+    margin-bottom: 0.75rem;
+  }
+  
+  /* Adaptive text sizing based on card size */
+  .tweet-text-adaptive {
+    font-size: clamp(0.875rem, 1vw, 1rem);
+    line-height: 1.5;
+  }
+  
+  /* Better spacing for engagement stats */
+  .engagement-stats {
+    margin-top: auto;
+    padding-top: 0.75rem;
+    border-top: 1px solid rgb(243, 244, 246);
+  }
+  
   /* Enhanced bento grid animations */
   @keyframes fadeInUp {
     from {
@@ -77,7 +116,7 @@ code {
   /* Bento grid utilities */
   .grid-bento {
     display: grid;
-    grid-auto-rows: minmax(350px, auto);
+    grid-auto-rows: max-content;
     gap: 1.5rem;
   }
 
@@ -114,6 +153,7 @@ code {
   .line-clamp-6 {
     display: -webkit-box;
     -webkit-line-clamp: 6;
+    line-clamp: 6;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
@@ -129,7 +169,7 @@ code {
     }
 
     .grid-bento {
-      grid-auto-rows: minmax(400px, auto);
+      grid-auto-rows: max-content;
     }
   }
 
@@ -201,5 +241,28 @@ code {
 
   .backdrop-blur-2xl {
     backdrop-filter: blur(40px);
+  }
+
+  /* Content-fitting bento grid utilities */
+  .grid-fit-content {
+    grid-auto-rows: max-content;
+  }
+  
+  .card-compact {
+    min-height: auto !important;
+    height: fit-content;
+  }
+  
+  .content-fit {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: stretch;
+    height: 100%;
+  }
+
+  /* Remove any unwanted spacing */
+  .tweet-card {
+    min-height: unset !important;
   }
 }

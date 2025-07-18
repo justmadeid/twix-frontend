@@ -391,45 +391,76 @@ export const TimelinePanel: React.FC = () => {
               </div>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 max-h-[1000px] overflow-y-auto custom-scrollbar"
-                 style={{ gridAutoRows: 'auto' }}>
+            <div className="grid grid-fit-content grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 max-h-[1000px] overflow-y-auto custom-scrollbar"
+                 style={{ gridAutoRows: 'max-content' }}>
               {timelineData.tweets.map((tweet: Tweet, index: number) => {
-                // Create bento grid variety with different card sizes
-                const getBentoSize = (index: number, total: number) => {
-                  // First card is always large if we have more than 2 tweets
-                  if (index === 0 && total > 2) {
+                // Content-aware bento grid sizing - OPTIMIZED to minimize empty space
+                // Only enlarges cards when content truly warrants more space
+                const getBentoSize = (index: number, total: number, tweet: Tweet) => {
+                  const hasMedia = tweet.media_urls && tweet.media_urls.length > 0;
+                  const hasMultipleMedia = tweet.media_urls && tweet.media_urls.length > 1;
+                  const isVeryLongTweet = tweet.text.length > 300;
+                  const isLongTweet = tweet.text.length > 200;
+                  const isMediumTweet = tweet.text.length > 120;
+                  const isHighEngagement = (tweet.like_count + tweet.retweet_count + tweet.reply_count) > 500;
+                  const isMediumEngagement = (tweet.like_count + tweet.retweet_count + tweet.reply_count) > 100;
+                  
+                  // Calculate content density score
+                  const contentScore = 
+                    (hasMultipleMedia ? 3 : hasMedia ? 2 : 0) +
+                    (isVeryLongTweet ? 3 : isLongTweet ? 2 : isMediumTweet ? 1 : 0) +
+                    (isHighEngagement ? 2 : isMediumEngagement ? 1 : 0);
+                  
+                  // First card - only enlarge if it has significant content
+                  if (index === 0 && total > 3 && contentScore >= 4) {
                     return "md:col-span-2 md:row-span-2";
                   }
-                  // Every 5th card (starting from 4th) spans 2 columns
-                  if ((index - 3) % 5 === 0 && index > 2) {
+                  if (index === 0 && total > 3 && contentScore >= 2) {
+                    return "md:col-span-2";
+                  }
+                  
+                  // High content density gets larger cards
+                  if (contentScore >= 5) {
+                    if (index % 5 === 0 && index > 0) {
+                      return "md:col-span-2 md:row-span-2";
+                    }
+                    return "md:col-span-2";
+                  }
+                  
+                  // Medium-high content density gets wide cards
+                  if (contentScore >= 3 && index % 7 === 0 && index > 0) {
                     return "lg:col-span-2";
                   }
-                  // Every 7th card spans 2 rows (but not if it's already spanning columns)
-                  if ((index - 6) % 7 === 0 && index > 5 && (index - 3) % 5 !== 0) {
-                    return "xl:row-span-2";
+                  
+                  // Multiple media always gets at least wide treatment
+                  if (hasMultipleMedia) {
+                    return "md:col-span-2";
                   }
-                  // Random medium cards for visual variety
-                  if (index === 2 && total > 6) {
-                    return "lg:col-span-2 xl:col-span-1";
-                  }
-                  // Occasional tall cards for tweets with media
-                  if (tweet.media_urls && tweet.media_urls.length > 0 && index % 8 === 0 && index > 0) {
+                  
+                  // Very long tweets without media get tall cards for readability
+                  if (isVeryLongTweet && !hasMedia && index % 8 === 0 && index > 0) {
                     return "row-span-2";
                   }
+                  
                   return "";
                 };
 
-                const isLargeCard = index === 0 && timelineData.tweets.length > 2;
-                const bentoClass = getBentoSize(index, timelineData.tweets.length);
+                const isLargeCard = index === 0 && timelineData.tweets.length > 3 && 
+                  ((tweet.media_urls?.length ?? 0) > 0 || tweet.text.length > 200 || 
+                   (tweet.like_count + tweet.retweet_count + tweet.reply_count) > 100);
+                const bentoClass = getBentoSize(index, timelineData.tweets.length, tweet);
                 
                 return (
                   <div 
                     key={tweet.id} 
-                    className={`group relative overflow-hidden tweet-card p-6 bg-white/90 backdrop-blur-sm rounded-2xl border border-white/60 hover:bg-white/95 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 animate-fade-in-up ${bentoClass}`}
-                    style={{ animationDelay: `${index * 0.1}s`, minHeight: isLargeCard ? '500px' : '350px' }}
+                    className={`group relative overflow-hidden tweet-card card-compact content-fit p-4 bg-white/90 backdrop-blur-sm rounded-2xl border border-white/60 hover:bg-white/95 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 animate-fade-in-up ${bentoClass}`}
+                    style={{ 
+                      animationDelay: `${index * 0.1}s`,
+                      // Remove fixed min-heights and let content determine the height
+                    }}
                   >
                     {/* Tweet Header */}
-                    <div className="flex items-start space-x-3 mb-4">
+                    <div className="flex items-start space-x-3 mb-3">
                       <div className="flex-shrink-0">
                         {tweet.author.profile_image_url ? (
                           <img
@@ -461,15 +492,27 @@ export const TimelinePanel: React.FC = () => {
                     </div>
                     
                     {/* Tweet Content */}
-                    <div className="mb-4">
-                      <p className={`text-gray-900 leading-relaxed whitespace-pre-wrap break-words group-hover:text-gray-800 transition-colors duration-300 ${isLargeCard ? 'text-base' : 'text-sm'}`}>
+                    <div className="tweet-content mb-3">
+                      <p className={`text-gray-900 leading-relaxed whitespace-pre-wrap break-words group-hover:text-gray-800 transition-colors duration-300 ${
+                        isLargeCard ? 'text-base' : 'text-sm'
+                      } ${
+                        // Smart content clamping - only clamp when necessary to prevent empty space
+                        isLargeCard ? '' : // No clamping for large cards
+                        bentoClass.includes('col-span-2') && bentoClass.includes('row-span-2') ? '' : // No clamping for 2x2 cards
+                        bentoClass.includes('col-span-2') && tweet.text.length > 400 ? 'line-clamp-6' : // Wide cards with very long text
+                        bentoClass.includes('row-span-2') ? '' : // No clamping for tall cards (they have vertical space)
+                        bentoClass.includes('col-span-2') && tweet.text.length > 250 ? 'line-clamp-4' : // Wide cards with long text
+                        tweet.text.length > 300 ? 'line-clamp-4' : // Very long tweets in normal cards
+                        tweet.text.length > 180 ? 'line-clamp-3' : // Long tweets get minimal clamping
+                        '' // Short and medium tweets no clamping to avoid empty space
+                      }`}>
                         {tweet.text}
                       </p>
                     </div>
                     
                     {/* Media Display */}
                     {tweet.media_urls && tweet.media_urls.length > 0 && (
-                      <div className="mb-4 space-y-3">
+                      <div className="mb-3 space-y-2">
                         {tweet.media_urls.map((mediaUrl, mediaIndex) => {
                           const isVideo = mediaUrl.includes('.mp4') || mediaUrl.includes('.mov') || mediaUrl.includes('video');
                           return (
@@ -503,8 +546,8 @@ export const TimelinePanel: React.FC = () => {
                     )}
                     
                     {/* Enhanced Tweet Stats */}
-                    <div className="flex items-center justify-between text-gray-500 pt-3 border-t border-gray-100 group-hover:border-gray-200 transition-colors duration-300">
-                      <div className={`flex items-center space-x-4 ${isLargeCard ? 'space-x-6' : ''}`}>
+                    <div className="engagement-stats flex items-center justify-between text-gray-500 transition-colors duration-300 mt-auto pt-2">
+                      <div className={`flex items-center ${isLargeCard ? 'space-x-4' : 'space-x-2'}`}>
                         <div className="flex items-center space-x-1 hover:text-blue-600 transition-colors cursor-pointer group/stat">
                           <MessageCircle className={`${isLargeCard ? 'w-5 h-5' : 'w-4 h-4'} group-hover/stat:scale-110 transition-transform duration-200`} />
                           <span className={`font-medium group-hover/stat:font-semibold transition-all duration-200 ${isLargeCard ? 'text-sm' : 'text-xs'}`}>{formatNumber(tweet.reply_count)}</span>
