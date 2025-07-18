@@ -219,46 +219,75 @@ export const HealthDashboard: React.FC = () => {
                 </div>
 
                 {/* Overall Status */}
-                <div className="bg-white/70 backdrop-blur-lg border border-white/20 rounded-3xl shadow-xl p-6">
-                    <div className="flex items-center justify-between mb-6">
-                        <h2 className="text-xl font-semibold text-gray-900">Overall Status</h2>
-                        <div className={`flex items-center space-x-2 px-4 py-2 rounded-xl ${getStatusColor(healthData.data.status)}`}>
-                            {getStatusIcon(healthData.data.status)}
-                            <span className="font-medium capitalize">{healthData.data.status}</span>
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    <div className="lg:col-span-8">
+                        <div className="bg-white/70 backdrop-blur-lg border border-white/20 rounded-3xl shadow-xl p-6">
+                            <div className="flex items-center justify-between mb-6">
+                                <h2 className="text-xl font-semibold text-gray-900">Overall Status</h2>
+                                <div className={`flex items-center space-x-2 px-4 py-2 rounded-xl ${getStatusColor(healthData.data.status)}`}>
+                                    {getStatusIcon(healthData.data.status)}
+                                    <span className="font-medium capitalize">{healthData.data.status}</span>
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">            <div
+                                className="bg-white/60 backdrop-blur-sm border border-[#0fbcf9]/20 rounded-2xl p-4 text-center transform transition-all duration-300 hover:scale-105 hover:shadow-xl hover:bg-[#0fbcf9]/10 hover:border-[#0fbcf9]/40 cursor-pointer"
+                                onClick={() => setSelectedMetric('total')}
+                            >
+                                <div className={`text-2xl font-bold text-blue-600 transition-all duration-500 ${animationKey ? 'animate-pulse' : ''}`}>
+                                    {healthData.data.details.total_services_checked}
+                                </div>
+                                <div className="text-sm text-gray-600">Total Services</div>
+                            </div>            <div
+                                className="bg-white/60 backdrop-blur-sm border border-[#0fbcf9]/20 rounded-2xl p-4 text-center transform transition-all duration-300 hover:scale-105 hover:shadow-xl hover:bg-[#0fbcf9]/10 hover:border-[#0fbcf9]/40 cursor-pointer"
+                                onClick={() => setSelectedMetric('healthy')}
+                            >
+                                    <div className={`text-2xl font-bold text-green-600 transition-all duration-500 ${animationKey ? 'animate-bounce' : ''}`}>
+                                        {healthData.data.details.healthy_services}
+                                    </div>
+                                    <div className="text-sm text-gray-600">Healthy</div>
+                                </div>            <div
+                                    className="bg-white/60 backdrop-blur-sm border border-[#0fbcf9]/20 rounded-2xl p-4 text-center transform transition-all duration-300 hover:scale-105 hover:shadow-xl hover:bg-[#0fbcf9]/10 hover:border-[#0fbcf9]/40 cursor-pointer"
+                                    onClick={() => setSelectedMetric('degraded')}
+                                >
+                                    <div className={`text-2xl font-bold text-yellow-600 transition-all duration-500 ${healthData.data.details.degraded_services > 0 && animationKey ? 'animate-pulse' : ''}`}>
+                                        {healthData.data.details.degraded_services}
+                                    </div>
+                                    <div className="text-sm text-gray-600">Degraded</div>
+                                </div>            <div
+                                    className="bg-white/60 backdrop-blur-sm border border-[#0fbcf9]/20 rounded-2xl p-4 text-center transform transition-all duration-300 hover:scale-105 hover:shadow-xl hover:bg-[#0fbcf9]/10 hover:border-[#0fbcf9]/40 cursor-pointer"
+                                    onClick={() => setSelectedMetric('unhealthy')}
+                                >
+                                    <div className={`text-2xl font-bold text-red-600 transition-all duration-500 ${healthData.data.details.unhealthy_services > 0 && animationKey ? 'animate-bounce' : ''}`}>
+                                        {healthData.data.details.unhealthy_services}
+                                    </div>
+                                    <div className="text-sm text-gray-600">Unhealthy</div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">            <div
-                        className="bg-white/60 backdrop-blur-sm border border-[#0fbcf9]/20 rounded-2xl p-4 text-center transform transition-all duration-300 hover:scale-105 hover:shadow-xl hover:bg-[#0fbcf9]/10 hover:border-[#0fbcf9]/40 cursor-pointer"
-                        onClick={() => setSelectedMetric('total')}
-                    >
-                        <div className={`text-2xl font-bold text-blue-600 transition-all duration-500 ${animationKey ? 'animate-pulse' : ''}`}>
-                            {healthData.data.details.total_services_checked}
-                        </div>
-                        <div className="text-sm text-gray-600">Total Services</div>
-                    </div>            <div
-                        className="bg-white/60 backdrop-blur-sm border border-[#0fbcf9]/20 rounded-2xl p-4 text-center transform transition-all duration-300 hover:scale-105 hover:shadow-xl hover:bg-[#0fbcf9]/10 hover:border-[#0fbcf9]/40 cursor-pointer"
-                        onClick={() => setSelectedMetric('healthy')}
-                    >
-                            <div className={`text-2xl font-bold text-green-600 transition-all duration-500 ${animationKey ? 'animate-bounce' : ''}`}>
-                                {healthData.data.details.healthy_services}
+                    <div className="lg:col-span-4">
+                        <div className="bg-white/70 backdrop-blur-lg border border-white/20 rounded-3xl shadow-xl p-6">
+                            <h2 className="text-lg font-semibold text-gray-900 mb-4">Response Time</h2>
+                            <div className="text-center">
+                                <div className={`text-3xl font-bold mb-2 transition-all duration-500 ${healthData.data.response_time_ms < 1000 ? 'text-green-600' :
+                                        healthData.data.response_time_ms < 3000 ? 'text-yellow-600 animate-pulse' :
+                                            'text-red-600 animate-bounce'
+                                    }`}>
+                                    {formatResponseTime(healthData.data.response_time_ms)}
+                                </div>
+                                <p className="text-sm text-gray-600">Overall Response Time</p>
+
+                                {/* Performance indicator */}
+                                <div className="mt-4">
+                                    <div className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${healthData.data.response_time_ms < 1000 ? 'bg-green-100 text-green-800' :
+                                            healthData.data.response_time_ms < 3000 ? 'bg-yellow-100 text-yellow-800' :
+                                                'bg-red-100 text-red-800'
+                                        }`}>
+                                        {healthData.data.response_time_ms < 1000 ? '🚀 Excellent' :
+                                            healthData.data.response_time_ms < 3000 ? '⚡ Good' : '🐌 Slow'}
+                                    </div>
+                                </div>
                             </div>
-                            <div className="text-sm text-gray-600">Healthy</div>
-                        </div>            <div
-                            className="bg-white/60 backdrop-blur-sm border border-[#0fbcf9]/20 rounded-2xl p-4 text-center transform transition-all duration-300 hover:scale-105 hover:shadow-xl hover:bg-[#0fbcf9]/10 hover:border-[#0fbcf9]/40 cursor-pointer"
-                            onClick={() => setSelectedMetric('degraded')}
-                        >
-                            <div className={`text-2xl font-bold text-yellow-600 transition-all duration-500 ${healthData.data.details.degraded_services > 0 && animationKey ? 'animate-pulse' : ''}`}>
-                                {healthData.data.details.degraded_services}
-                            </div>
-                            <div className="text-sm text-gray-600">Degraded</div>
-                        </div>            <div
-                            className="bg-white/60 backdrop-blur-sm border border-[#0fbcf9]/20 rounded-2xl p-4 text-center transform transition-all duration-300 hover:scale-105 hover:shadow-xl hover:bg-[#0fbcf9]/10 hover:border-[#0fbcf9]/40 cursor-pointer"
-                            onClick={() => setSelectedMetric('unhealthy')}
-                        >
-                            <div className={`text-2xl font-bold text-red-600 transition-all duration-500 ${healthData.data.details.unhealthy_services > 0 && animationKey ? 'animate-bounce' : ''}`}>
-                                {healthData.data.details.unhealthy_services}
-                            </div>
-                            <div className="text-sm text-gray-600">Unhealthy</div>
                         </div>
                     </div>
                 </div>
@@ -421,29 +450,6 @@ export const HealthDashboard: React.FC = () => {
                                         <p className="font-medium text-gray-900">
                                             {healthData.data.details.debug_mode ? 'Enabled' : 'Disabled'}
                                         </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>            {/* Response Time */}
-                        <div className="bg-white/70 backdrop-blur-lg border border-white/20 rounded-3xl shadow-xl p-6">
-                            <h2 className="text-lg font-semibold text-gray-900 mb-4">Response Time</h2>
-                            <div className="text-center">
-                                <div className={`text-3xl font-bold mb-2 transition-all duration-500 ${healthData.data.response_time_ms < 1000 ? 'text-green-600' :
-                                        healthData.data.response_time_ms < 3000 ? 'text-yellow-600 animate-pulse' :
-                                            'text-red-600 animate-bounce'
-                                    }`}>
-                                    {formatResponseTime(healthData.data.response_time_ms)}
-                                </div>
-                                <p className="text-sm text-gray-600">Overall Response Time</p>
-
-                                {/* Performance indicator */}
-                                <div className="mt-4">
-                                    <div className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${healthData.data.response_time_ms < 1000 ? 'bg-green-100 text-green-800' :
-                                            healthData.data.response_time_ms < 3000 ? 'bg-yellow-100 text-yellow-800' :
-                                                'bg-red-100 text-red-800'
-                                        }`}>
-                                        {healthData.data.response_time_ms < 1000 ? '🚀 Excellent' :
-                                            healthData.data.response_time_ms < 3000 ? '⚡ Good' : '🐌 Slow'}
                                     </div>
                                 </div>
                             </div>
