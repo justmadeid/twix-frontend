@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { twitterAPI } from '../services/api';
 import { TwitterUser } from '../types/api';
 import TaskMonitor from './TaskMonitor';
+import { UserProfilePage } from './UserProfilePage';
 import { Search, Users, User } from 'lucide-react';
 
 export const UserSearchPanel: React.FC = () => {
@@ -10,6 +11,8 @@ export const UserSearchPanel: React.FC = () => {
   const [currentTaskId, setCurrentTaskId] = useState<string | null>(null);
   const [searchResults, setSearchResults] = useState<TwitterUser[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<TwitterUser | null>(null);
+  const [showProfile, setShowProfile] = useState(false);
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -86,11 +89,20 @@ export const UserSearchPanel: React.FC = () => {
     setCurrentTaskId(null);
     setIsLoading(false);
   };
-
   const handleTaskError = (error: string) => {
     console.error('Search failed:', error);
     setCurrentTaskId(null);
     setIsLoading(false);
+  };
+
+  const handleViewProfile = (user: TwitterUser) => {
+    setSelectedUser(user);
+    setShowProfile(true);
+  };
+
+  const handleBackToSearch = () => {
+    setShowProfile(false);
+    setSelectedUser(null);
   };
 
   const formatNumber = (num: number) => {
@@ -100,8 +112,15 @@ export const UserSearchPanel: React.FC = () => {
       return (num / 1000).toFixed(1) + 'K';
     }
     return num.toString();
-  }; return (
-    <div className="space-y-6">
+  };  return (
+    <>
+      {showProfile && selectedUser ? (
+        <UserProfilePage 
+          user={selectedUser} 
+          onBack={handleBackToSearch}
+        />
+      ) : (
+        <div className="space-y-6">
       {/* Header Container - Separate Bento Card */}
       <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-200/50 p-6 hover:shadow-xl transition-all duration-300">
         <div className="flex items-center space-x-4">
@@ -239,7 +258,7 @@ export const UserSearchPanel: React.FC = () => {
             {Array.from({ length: searchLimit }, (_, index) => {
               const isLargeSkeleton = index === 0 && searchLimit > 2;
               const skeletonClass = isLargeSkeleton ? "md:col-span-2 md:row-span-2" : "";
-              
+
               return (
                 <div
                   key={index}
@@ -254,7 +273,7 @@ export const UserSearchPanel: React.FC = () => {
                       <div className={`h-2 bg-gray-400 rounded w-16 ${isLargeSkeleton ? 'h-3 w-20' : ''}`}></div>
                     </div>
                   </div>
-                  
+
                   <div className={`${isLargeSkeleton ? 'p-6' : 'p-4'}`}>
                     {/* Stats skeleton */}
                     <div className={`grid gap-3 ${isLargeSkeleton ? 'grid-cols-4' : 'grid-cols-2'}`}>
@@ -279,7 +298,7 @@ export const UserSearchPanel: React.FC = () => {
                         </>
                       )}
                     </div>
-                    
+
                     {/* Bio skeleton for large cards */}
                     {isLargeSkeleton && (
                       <div className="mt-4 p-3 bg-gray-100 rounded-lg">
@@ -332,36 +351,36 @@ export const UserSearchPanel: React.FC = () => {
                   return "lg:col-span-2 xl:col-span-1";
                 }
                 return "";
-              };              const isLargeCard = index === 0 && searchResults.length > 2;
-              const bentoClass = getBentoSize(index, searchResults.length);              return (                <div
-                  key={user.id}
-                  className={`group relative overflow-hidden bg-white rounded-xl shadow-md border border-gray-200 transition-all duration-300 hover:shadow-xl hover:scale-[1.02] hover:-translate-y-1 ${bentoClass}`}
-                >
+              }; const isLargeCard = index === 0 && searchResults.length > 2;
+              const bentoClass = getBentoSize(index, searchResults.length); return (<div
+                key={user.id}
+                className={`group relative overflow-hidden bg-white rounded-xl shadow-md border border-gray-200 transition-all duration-300 hover:shadow-xl hover:scale-[1.02] hover:-translate-y-1 ${bentoClass}`}
+              >
                 {/* Profile Banner Background for Header Section */}
                 <div className="relative">                  {user.profile_banner ? (
-                    <div
-                      className={`w-full relative ${isLargeCard ? 'h-32' : 'h-24'}`}
-                      style={{
-                        backgroundImage: `url(${user.profile_banner})`,
-                        backgroundSize: 'cover',
-                        backgroundPosition: 'center',
-                      }}
-                    >                      {/* Dark overlay for better text readability */}
-                      <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-colors duration-300"></div>
-                    </div>                  ) : (
-                    <div className={`w-full bg-gradient-to-r from-gray-400 to-gray-500 relative ${isLargeCard ? 'h-32' : 'h-24'}`}>                      {/* Dark overlay for consistency */}
-                      <div className="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-colors duration-300"></div>
-                    </div>
-                  )}
+                  <div
+                    className={`w-full relative ${isLargeCard ? 'h-48' : 'h-32'}`}
+                    style={{
+                      backgroundImage: `url(${user.profile_banner})`,
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center',
+                    }}
+                  >                      {/* Dark overlay for better text readability */}
+                    <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-colors duration-300"></div>
+                  </div>) : (
+                  <div className={`w-full bg-gradient-to-r from-gray-400 to-gray-500 relative ${isLargeCard ? 'h-32' : 'h-24'}`}>                      {/* Dark overlay for consistency */}
+                    <div className="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-colors duration-300"></div>
+                  </div>
+                )}
 
                   {/* User Avatar and Info overlaid on banner */}
                   <div className="absolute inset-0 flex flex-col items-center justify-center text-white">                    {/* User Avatar */}
                     <div className="mb-2 group-hover:scale-110 transition-transform duration-300">
-                      {user.profile_image_url ? (                        <img
-                          src={user.profile_image_url}
-                          alt={user.display_name}
-                          className={`rounded-full border-2 border-white shadow-lg group-hover:border-blue-300 transition-all duration-300 ${isLargeCard ? 'w-16 h-16' : 'w-12 h-12'}`}
-                        />                      ) : (
+                      {user.profile_image_url ? (<img
+                        src={user.profile_image_url}
+                        alt={user.display_name}
+                        className={`rounded-full border-2 border-white mt-1 shadow-lg group-hover:border-blue-300 transition-all duration-300 ${isLargeCard ? 'w-16 h-16' : 'w-12 h-12'}`}
+                      />) : (
                         <div className={`bg-white/20 rounded-full flex items-center justify-center border-2 border-white group-hover:border-blue-300 transition-all duration-300 ${isLargeCard ? 'w-16 h-16' : 'w-12 h-12'}`}>
                           <User className={`text-white ${isLargeCard ? 'w-8 h-8' : 'w-6 h-6'}`} />
                         </div>
@@ -370,9 +389,10 @@ export const UserSearchPanel: React.FC = () => {
 
                     {/* User Name and Username */}
                     <div className="text-center">
-                      <div className="flex items-center justify-center space-x-1 mb-1">                        <h4 className={`font-semibold text-white truncate drop-shadow-md group-hover:text-blue-200 transition-colors duration-300 ${isLargeCard ? 'text-base' : 'text-sm'}`}>
-                          {user.display_name}
-                        </h4>
+                      <div className="flex items-center justify-center space-x-1 mb-1">                        
+                        <h4 className={`font-semibold text-white truncate drop-shadow-md group-hover:text-blue-200 transition-colors duration-300 ${isLargeCard ? 'text-base' : 'text-sm'}`}>
+                        {user.display_name}
+                      </h4>
                         {user.verified && (
                           <span className={`text-blue-300 group-hover:text-blue-200 transition-colors duration-300 ${isLargeCard ? 'text-sm' : 'text-xs'}`}>✓</span>
                         )}
@@ -398,7 +418,7 @@ export const UserSearchPanel: React.FC = () => {
                       </div>
                       <div className={`text-gray-500 group-hover:text-blue-500 transition-colors duration-300 ${isLargeCard ? 'text-sm' : 'text-xs'}`}>Following</div>
                     </div>
-                    
+
                     {/* Additional stats for large cards */}
                     {isLargeCard && (
                       <>
@@ -484,16 +504,20 @@ export const UserSearchPanel: React.FC = () => {
                   )}
                 </div>                {/* Hover-only View Profile Button */}
                 <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-sm">
-                  <button className="px-6 py-3 bg-white text-gray-900 rounded-lg font-medium text-sm hover:bg-gray-50 transition-all duration-200 transform hover:scale-105 shadow-lg">
+                  <button 
+                    onClick={() => handleViewProfile(user)}
+                    className="px-6 py-3 bg-white text-gray-900 rounded-lg font-medium text-sm hover:bg-gray-50 transition-all duration-200 transform hover:scale-105 shadow-lg"
+                  >
                     View Profile
                   </button>
                 </div>
               </div>
-            );
-          })}
-          </div>
+              );
+            })}          </div>
         </div>
       )}
-    </div>
+        </div>
+      )}
+    </>
   );
 };
