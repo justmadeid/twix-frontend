@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { twitterAPI } from '../services/api';
 import { TwitterUser } from '../types/api';
 import TaskMonitor from './TaskMonitor';
-import { Search, Users, User, Calendar, MapPin, Heart, MessageCircle, Link, Shield, Globe, Clock, Palette } from 'lucide-react';
+import { Search, Users, User } from 'lucide-react';
 
 export const UserSearchPanel: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -27,7 +27,7 @@ export const UserSearchPanel: React.FC = () => {
       console.error('Search failed:', error);
       setIsLoading(false);
     }
-  };  const handleTaskComplete = (result: any) => {
+  }; const handleTaskComplete = (result: any) => {
     console.log('Search completed:', result);
     console.log('Result type:', typeof result);
     console.log('Result keys:', Object.keys(result || {}));
@@ -100,7 +100,7 @@ export const UserSearchPanel: React.FC = () => {
       return (num / 1000).toFixed(1) + 'K';
     }
     return num.toString();
-  };  return (
+  }; return (
     <div className="space-y-6">
       {/* Header Container - Separate Bento Card */}
       <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-200/50 p-6 hover:shadow-xl transition-all duration-300">
@@ -123,104 +123,92 @@ export const UserSearchPanel: React.FC = () => {
         </div>
       </div>{/* Enhanced Bento Grid Form Layout */}
       <form onSubmit={handleSearch} className="mb-8">
-        <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-200/50 p-6 hover:shadow-xl transition-all duration-300">
-          <div className="flex items-center space-x-4 mb-6">
-            <div className="p-3 bg-gradient-to-br from-[#0fbcf9]/10 to-[#0fbcf9]/5 rounded-2xl border border-[#0fbcf9]/20">
-              <Search className="w-6 h-6 text-[#0fbcf9]" />
-            </div>
-            <div>
-              <h3 className="text-xl font-bold text-gray-900">Search Configuration</h3>
-              <p className="text-sm text-gray-500 mt-1">Configure your search parameters</p>
+        <div className="grid grid-cols-12 gap-4">
+          {/* Search Input - Enhanced styling */}
+          <div className="col-span-12 lg:col-span-6 xl:col-span-7">
+            <div className="group relative overflow-hidden bg-gradient-to-br from-[#0fbcf9]/10 backdrop-blur-lg rounded-2xl border border-[#0fbcf9]/20 p-6 h-full hover:from-[#0fbcf9]/10 hover:to-[#0fbcf9]/15 hover:border-[#0fbcf9]/30 hover:shadow-lg hover:scale-[1.01] transition-all duration-300">
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#0fbcf9]/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out"></div>
+
+              <div className="relative">
+                <div className="flex items-center space-x-3 mb-4">
+                  <div className="p-2 bg-[#0fbcf9]/10 rounded-xl group-hover:bg-[#0fbcf9]/20 group-hover:scale-110 transition-all duration-300">
+                    <Search className="w-5 h-5 text-[#0fbcf9]" />
+                  </div>
+                  <label className="text-sm font-bold text-gray-700 group-hover:text-[#0fbcf9] transition-colors duration-300">
+                    Search Query
+                  </label>
+                </div>
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full px-5 py-4 border-2 border-gray-200/50 rounded-xl focus:ring-2 focus:ring-[#0fbcf9] focus:border-[#0fbcf9] bg-white/70 backdrop-blur-sm transition-all duration-300 hover:bg-white/90 hover:border-[#0fbcf9]/30 text-sm placeholder-gray-400 shadow-sm focus:shadow-md"
+                  placeholder="Enter username, name, or keywords..."
+                  required
+                />
+              </div>
             </div>
           </div>
 
-          <div className="grid grid-cols-12 gap-4">
-            {/* Search Input - Enhanced styling */}
-            <div className="col-span-12 lg:col-span-6 xl:col-span-7">
-              <div className="group relative overflow-hidden bg-gradient-to-br from-[#0fbcf9]/5 via-white/50 to-[#0fbcf9]/10 backdrop-blur-lg rounded-2xl border border-[#0fbcf9]/20 p-6 h-full hover:from-[#0fbcf9]/10 hover:to-[#0fbcf9]/15 hover:border-[#0fbcf9]/30 hover:shadow-lg hover:scale-[1.01] transition-all duration-300">
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#0fbcf9]/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out"></div>
-                
-                <div className="relative">
-                  <div className="flex items-center space-x-3 mb-4">
-                    <div className="p-2 bg-[#0fbcf9]/10 rounded-xl group-hover:bg-[#0fbcf9]/20 group-hover:scale-110 transition-all duration-300">
-                      <Search className="w-5 h-5 text-[#0fbcf9]" />
-                    </div>
-                    <label className="text-sm font-bold text-gray-700 group-hover:text-[#0fbcf9] transition-colors duration-300">
-                      Search Query
-                    </label>
+          {/* Limit Selector - Enhanced styling */}
+          <div className="col-span-6 lg:col-span-3 xl:col-span-2">
+            <div className="group relative overflow-hidden bg-white/70 backdrop-blur-lg rounded-2xl border border-gray-200/50 p-6 h-full hover:bg-white/90 hover:border-[#0fbcf9]/20 hover:shadow-lg hover:scale-[1.01] transition-all duration-300">
+              <div className="absolute inset-0 bg-gradient-to-br from-transparent to-[#0fbcf9]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+
+              <div className="relative">
+                <div className="flex items-center space-x-3 mb-4">
+                  <div className="p-2 bg-gray-100 rounded-xl group-hover:bg-[#0fbcf9]/10 group-hover:scale-110 transition-all duration-300">
+                    <Users className="w-5 h-5 text-gray-600 group-hover:text-[#0fbcf9] transition-colors duration-300" />
                   </div>
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full px-5 py-4 border-2 border-gray-200/50 rounded-xl focus:ring-2 focus:ring-[#0fbcf9] focus:border-[#0fbcf9] bg-white/70 backdrop-blur-sm transition-all duration-300 hover:bg-white/90 hover:border-[#0fbcf9]/30 text-sm placeholder-gray-400 shadow-sm focus:shadow-md"
-                    placeholder="Enter username, name, or keywords..."
-                    required
-                  />
+                  <label className="text-sm font-bold text-gray-700 group-hover:text-[#0fbcf9] transition-colors duration-300">
+                    Limit
+                  </label>
                 </div>
+                <select
+                  value={searchLimit}
+                  onChange={(e) => setSearchLimit(parseInt(e.target.value))}
+                  className="w-full px-4 py-4 border-2 border-gray-200/50 rounded-xl focus:ring-2 focus:ring-[#0fbcf9] focus:border-[#0fbcf9] bg-white/70 backdrop-blur-sm transition-all duration-300 hover:bg-white/90 hover:border-[#0fbcf9]/30 text-sm shadow-sm focus:shadow-md"
+                >
+                  <option value={5}>5 users</option>
+                  <option value={10}>10 users</option>
+                  <option value={20}>20 users</option>
+                  <option value={50}>50 users</option>
+                </select>
               </div>
             </div>
+          </div>
 
-            {/* Limit Selector - Enhanced styling */}
-            <div className="col-span-6 lg:col-span-3 xl:col-span-2">
-              <div className="group relative overflow-hidden bg-white/70 backdrop-blur-lg rounded-2xl border border-gray-200/50 p-6 h-full hover:bg-white/90 hover:border-[#0fbcf9]/20 hover:shadow-lg hover:scale-[1.01] transition-all duration-300">
-                <div className="absolute inset-0 bg-gradient-to-br from-transparent to-[#0fbcf9]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                
-                <div className="relative">
-                  <div className="flex items-center space-x-3 mb-4">
-                    <div className="p-2 bg-gray-100 rounded-xl group-hover:bg-[#0fbcf9]/10 group-hover:scale-110 transition-all duration-300">
-                      <Users className="w-5 h-5 text-gray-600 group-hover:text-[#0fbcf9] transition-colors duration-300" />
-                    </div>
-                    <label className="text-sm font-bold text-gray-700 group-hover:text-[#0fbcf9] transition-colors duration-300">
-                      Limit
-                    </label>
-                  </div>
-                  <select
-                    value={searchLimit}
-                    onChange={(e) => setSearchLimit(parseInt(e.target.value))}
-                    className="w-full px-4 py-4 border-2 border-gray-200/50 rounded-xl focus:ring-2 focus:ring-[#0fbcf9] focus:border-[#0fbcf9] bg-white/70 backdrop-blur-sm transition-all duration-300 hover:bg-white/90 hover:border-[#0fbcf9]/30 text-sm shadow-sm focus:shadow-md"
-                  >
-                    <option value={5}>5 users</option>
-                    <option value={10}>10 users</option>
-                    <option value={20}>20 users</option>
-                    <option value={50}>50 users</option>
-                  </select>
-                </div>
-              </div>
-            </div>
+          {/* Search Button - Enhanced with animation */}
+          <div className="col-span-6 lg:col-span-3 xl:col-span-3">
+            <div className="group relative overflow-hidden bg-white/70 backdrop-blur-lg rounded-2xl border border-gray-200/50 p-6 h-full hover:bg-white/90 hover:border-[#0fbcf9]/20 hover:shadow-lg hover:scale-[1.01] transition-all duration-300">
+              <div className="absolute inset-0 bg-gradient-to-br from-[#0fbcf9]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
 
-            {/* Search Button - Enhanced with animation */}
-            <div className="col-span-6 lg:col-span-3 xl:col-span-3">
-              <div className="group relative overflow-hidden bg-white/70 backdrop-blur-lg rounded-2xl border border-gray-200/50 p-6 h-full hover:bg-white/90 hover:border-[#0fbcf9]/20 hover:shadow-lg hover:scale-[1.01] transition-all duration-300">
-                <div className="absolute inset-0 bg-gradient-to-br from-[#0fbcf9]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                
-                <div className="relative">
-                  <div className="flex items-center space-x-3 mb-4">
-                    <div className="p-2 bg-[#0fbcf9]/20 rounded-xl group-hover:bg-[#0fbcf9]/30 group-hover:scale-110 transition-all duration-300">
-                      <Search className="w-5 h-5 text-[#0fbcf9]" />
-                    </div>
-                    <label className="text-sm font-bold text-gray-700 group-hover:text-[#0fbcf9] transition-colors duration-300">
-                      Action
-                    </label>
+              <div className="relative">
+                <div className="flex items-center space-x-3 mb-4">
+                  <div className="p-2 bg-[#0fbcf9]/20 rounded-xl group-hover:bg-[#0fbcf9]/30 group-hover:scale-110 transition-all duration-300">
+                    <Search className="w-5 h-5 text-[#0fbcf9]" />
                   </div>
-                  <button
-                    type="submit"
-                    disabled={isLoading || currentTaskId !== null}
-                    className="w-full px-5 py-4 bg-gradient-to-r from-[#0fbcf9] to-[#0fbcf9]/90 text-white rounded-xl hover:from-[#0fbcf9]/90 hover:to-[#0fbcf9] hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 text-sm font-bold shadow-lg backdrop-blur-sm border border-[#0fbcf9]/20"
-                  >
-                    {isLoading ? (
-                      <div className="flex items-center justify-center space-x-2">
-                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
-                        <span>Searching...</span>
-                      </div>
-                    ) : (
-                      <div className="flex items-center justify-center space-x-2">
-                        <Search className="w-4 h-4" />
-                        <span>Search Users</span>
-                      </div>
-                    )}
-                  </button>
+                  <label className="text-sm font-bold text-gray-700 group-hover:text-[#0fbcf9] transition-colors duration-300">
+                    Action
+                  </label>
                 </div>
+                <button
+                  type="submit"
+                  disabled={isLoading || currentTaskId !== null}
+                  className="w-full px-5 py-4 bg-gradient-to-r from-[#0fbcf9] to-[#0fbcf9]/90 text-white rounded-xl hover:from-[#0fbcf9]/90 hover:to-[#0fbcf9] hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 text-sm font-bold shadow-lg backdrop-blur-sm border border-[#0fbcf9]/20"
+                >
+                  {isLoading ? (
+                    <div className="flex items-center justify-center space-x-2">
+                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                      <span>Searching...</span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-center space-x-2">
+                      <Search className="w-4 h-4" />
+                      <span>Search Users</span>
+                    </div>
+                  )}
+                </button>
               </div>
             </div>
           </div>
@@ -234,9 +222,7 @@ export const UserSearchPanel: React.FC = () => {
             onError={handleTaskError}
           />
         </div>
-      )}
-
-      {/* Loading Skeleton - Bento Grid Style */}
+      )}      {/* Loading Skeleton - Simplified Style */}
       {isLoading && currentTaskId && (
         <div className="space-y-6">
           <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-200/50 p-6">
@@ -249,53 +235,44 @@ export const UserSearchPanel: React.FC = () => {
                 <div className="h-4 bg-gray-200 rounded w-24 animate-pulse"></div>
               </div>
             </div>
-          </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          </div>          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 auto-rows-fr">
             {Array.from({ length: searchLimit }, (_, index) => {
-              const isLargeSkeleton = index === 0 && searchLimit > 3;
+              const isLargeSkeleton = index === 0 && searchLimit > 2;
+              const skeletonClass = isLargeSkeleton ? "md:col-span-2 md:row-span-2" : "";
+              
               return (
-                <div 
+                <div
                   key={index}
-                  className={`
-                    bg-white/70 backdrop-blur-lg rounded-2xl border border-gray-200/50 p-6 animate-pulse
-                    ${index === 0 && searchLimit > 3 ? 'md:col-span-2 lg:col-span-2' : ''}
-                    ${index === 1 && searchLimit > 5 ? 'lg:col-span-2' : ''}
-                  `}
+                  className={`bg-white rounded-xl shadow-md border border-gray-200 animate-pulse ${skeletonClass}`}
                 >
-                  <div className="flex justify-center mb-4">
-                    <div className="w-16 h-16 bg-gray-300 rounded-full"></div>
-                  </div>
-                  <div className="text-center space-y-3">
-                    <div>
-                      <div className="h-5 bg-gray-300 rounded w-3/4 mx-auto mb-2"></div>
-                      <div className="h-4 bg-gray-200 rounded w-1/2 mx-auto"></div>
-                      
-                      {/* Additional skeleton info for large cards */}
-                      {isLargeSkeleton && (
-                        <div className="mt-3 space-y-2">
-                          <div className="h-3 bg-gray-200 rounded w-2/3 mx-auto"></div>
-                          <div className="h-3 bg-gray-200 rounded w-1/2 mx-auto"></div>
-                        </div>
-                      )}
+                  {/* Banner header skeleton */}
+                  <div className={`w-full bg-gray-300 relative ${isLargeSkeleton ? 'h-32' : 'h-24'}`}>
+                    {/* Avatar skeleton */}
+                    <div className="absolute inset-0 flex flex-col items-center justify-center">
+                      <div className={`bg-gray-400 rounded-full mb-2 ${isLargeSkeleton ? 'w-16 h-16' : 'w-12 h-12'}`}></div>
+                      <div className={`h-3 bg-gray-400 rounded w-20 mb-1 ${isLargeSkeleton ? 'h-4 w-24' : ''}`}></div>
+                      <div className={`h-2 bg-gray-400 rounded w-16 ${isLargeSkeleton ? 'h-3 w-20' : ''}`}></div>
                     </div>
-                    
-                    {/* Enhanced stats grid skeleton */}
-                    <div className={`grid gap-3 ${isLargeSkeleton ? 'grid-cols-2 lg:grid-cols-4' : 'grid-cols-2'}`}>
-                      <div className="bg-gray-200 rounded-xl p-3">
-                        <div className="h-5 bg-gray-300 rounded mb-1"></div>
+                  </div>
+                  
+                  <div className={`${isLargeSkeleton ? 'p-6' : 'p-4'}`}>
+                    {/* Stats skeleton */}
+                    <div className={`grid gap-3 ${isLargeSkeleton ? 'grid-cols-4' : 'grid-cols-2'}`}>
+                      <div className="text-center">
+                        <div className={`bg-gray-300 rounded mb-1 ${isLargeSkeleton ? 'h-5' : 'h-4'}`}></div>
                         <div className="h-3 bg-gray-200 rounded"></div>
                       </div>
-                      <div className="bg-gray-200 rounded-xl p-3">
-                        <div className="h-5 bg-gray-300 rounded mb-1"></div>
+                      <div className="text-center">
+                        <div className={`bg-gray-300 rounded mb-1 ${isLargeSkeleton ? 'h-5' : 'h-4'}`}></div>
                         <div className="h-3 bg-gray-200 rounded"></div>
                       </div>
                       {isLargeSkeleton && (
                         <>
-                          <div className="bg-gray-200 rounded-xl p-3">
+                          <div className="text-center">
                             <div className="h-5 bg-gray-300 rounded mb-1"></div>
                             <div className="h-3 bg-gray-200 rounded"></div>
                           </div>
-                          <div className="bg-gray-200 rounded-xl p-3">
+                          <div className="text-center">
                             <div className="h-5 bg-gray-300 rounded mb-1"></div>
                             <div className="h-3 bg-gray-200 rounded"></div>
                           </div>
@@ -303,14 +280,16 @@ export const UserSearchPanel: React.FC = () => {
                       )}
                     </div>
                     
-                    {/* Bio skeleton */}
-                    <div className="mt-4 p-3 bg-gray-100 rounded-xl">
-                      <div className="space-y-1">
-                        <div className="h-3 bg-gray-200 rounded"></div>
-                        <div className="h-3 bg-gray-200 rounded w-4/5"></div>
-                        {isLargeSkeleton && <div className="h-3 bg-gray-200 rounded w-3/4"></div>}
+                    {/* Bio skeleton for large cards */}
+                    {isLargeSkeleton && (
+                      <div className="mt-4 p-3 bg-gray-100 rounded-lg">
+                        <div className="space-y-2">
+                          <div className="h-3 bg-gray-200 rounded"></div>
+                          <div className="h-3 bg-gray-200 rounded w-4/5"></div>
+                          <div className="h-3 bg-gray-200 rounded w-3/4"></div>
+                        </div>
                       </div>
-                    </div>
+                    )}
                   </div>
                 </div>
               );
@@ -331,254 +310,187 @@ export const UserSearchPanel: React.FC = () => {
                 <p className="text-sm text-gray-500 mt-1">Found {searchResults.length} users</p>
               </div>
             </div>
-          </div>
-
-          {/* Bento Grid User Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 auto-rows-min">            {searchResults.map((user, index) => {
-              // Create variety in card sizes for bento grid effect
-              const getCardSize = (index: number) => {
-                if (searchResults.length === 1) return "md:col-span-2 lg:col-span-3";
-                if (index === 0 && searchResults.length > 3) return "md:col-span-2 lg:col-span-2 md:row-span-2";
-                if (index === 1 && searchResults.length > 5) return "lg:col-span-2";
-                if ((index + 1) % 7 === 0) return "md:col-span-2";
-                return "";
-              };
-
-              const formatDate = (dateString: string) => {
-                try {
-                  return new Date(dateString).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric'
-                  });
-                } catch {
-                  return 'Unknown';
+          </div>          {/* Bento Grid User Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 auto-rows-fr">
+            {searchResults.map((user, index) => {
+              // Create bento grid variety with different card sizes
+              const getBentoSize = (index: number, total: number) => {
+                // First card is always large if we have more than 2 users
+                if (index === 0 && total > 2) {
+                  return "md:col-span-2 md:row-span-2";
                 }
-              };
-
-              const isLargeCard = index === 0 && searchResults.length > 3;
-
-              return (
-                <div 
-                  key={user.id} 
-                  className={`
-                    group relative overflow-hidden rounded-2xl border border-white/20 
-                    bg-white/70 backdrop-blur-lg shadow-lg 
-                    hover:bg-[#0fbcf9]/10 hover:border-[#0fbcf9]/30 hover:shadow-xl 
-                    hover:backdrop-blur-xl hover:scale-[1.02] hover:-translate-y-1
-                    transition-all duration-300 ease-out cursor-pointer
-                    ${getCardSize(index)}
-                  `}
+                // Every 5th card (starting from 4th) spans 2 columns
+                if ((index - 3) % 5 === 0 && index > 2) {
+                  return "lg:col-span-2";
+                }
+                // Every 7th card spans 2 rows (but not if it's already spanning columns)
+                if ((index - 6) % 7 === 0 && index > 5 && (index - 3) % 5 !== 0) {
+                  return "xl:row-span-2";
+                }
+                // Random medium cards
+                if (index === 2 && total > 6) {
+                  return "lg:col-span-2 xl:col-span-1";
+                }
+                return "";
+              };              const isLargeCard = index === 0 && searchResults.length > 2;
+              const bentoClass = getBentoSize(index, searchResults.length);              return (                <div
+                  key={user.id}
+                  className={`group relative overflow-hidden bg-white rounded-xl shadow-md border border-gray-200 transition-all duration-300 hover:shadow-xl hover:scale-[1.02] hover:-translate-y-1 ${bentoClass}`}
                 >
-                  {/* Glassmorphism overlay on hover */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-[#0fbcf9]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  
-                  {/* Profile Banner Background */}
-                  {user.profile_banner && (
-                    <div 
-                      className="absolute inset-0 opacity-10 group-hover:opacity-20 transition-opacity duration-300"
+                {/* Profile Banner Background for Header Section */}
+                <div className="relative">                  {user.profile_banner ? (
+                    <div
+                      className={`w-full relative ${isLargeCard ? 'h-32' : 'h-24'}`}
                       style={{
                         backgroundImage: `url(${user.profile_banner})`,
                         backgroundSize: 'cover',
                         backgroundPosition: 'center',
                       }}
-                    />
+                    >                      {/* Dark overlay for better text readability */}
+                      <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-colors duration-300"></div>
+                    </div>                  ) : (
+                    <div className={`w-full bg-gradient-to-r from-gray-400 to-gray-500 relative ${isLargeCard ? 'h-32' : 'h-24'}`}>                      {/* Dark overlay for consistency */}
+                      <div className="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-colors duration-300"></div>
+                    </div>
                   )}
-                  
-                  <div className="relative p-6">
-                    {/* User Avatar */}
-                    <div className="flex justify-center mb-4">
-                      {user.profile_image_url ? (
-                        <div className="relative">
-                          <img
-                            src={user.profile_image_url}
-                            alt={user.display_name}
-                            className="w-16 h-16 rounded-full border-3 border-white/50 shadow-lg group-hover:border-[#0fbcf9]/30 group-hover:shadow-xl transition-all duration-300"
-                          />
-                          {user.protected && (
-                            <div className="absolute -top-1 -right-1 bg-yellow-100 text-yellow-800 rounded-full p-1 group-hover:bg-yellow-200 transition-colors duration-300">
-                              <Shield className="w-3 h-3" />
-                            </div>
-                          )}
-                        </div>
-                      ) : (
-                        <div className="w-16 h-16 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center border-3 border-white/50 shadow-lg group-hover:border-[#0fbcf9]/30 group-hover:shadow-xl transition-all duration-300">
-                          <User className="w-8 h-8 text-gray-500 group-hover:text-[#0fbcf9] transition-colors duration-300" />
+
+                  {/* User Avatar and Info overlaid on banner */}
+                  <div className="absolute inset-0 flex flex-col items-center justify-center text-white">                    {/* User Avatar */}
+                    <div className="mb-2 group-hover:scale-110 transition-transform duration-300">
+                      {user.profile_image_url ? (                        <img
+                          src={user.profile_image_url}
+                          alt={user.display_name}
+                          className={`rounded-full border-2 border-white shadow-lg group-hover:border-blue-300 transition-all duration-300 ${isLargeCard ? 'w-16 h-16' : 'w-12 h-12'}`}
+                        />                      ) : (
+                        <div className={`bg-white/20 rounded-full flex items-center justify-center border-2 border-white group-hover:border-blue-300 transition-all duration-300 ${isLargeCard ? 'w-16 h-16' : 'w-12 h-12'}`}>
+                          <User className={`text-white ${isLargeCard ? 'w-8 h-8' : 'w-6 h-6'}`} />
                         </div>
                       )}
                     </div>
 
-                    {/* User Info */}
-                    <div className="text-center space-y-3">
-                      <div>
-                        <div className="flex items-center justify-center space-x-2 mb-1">
-                          <h4 className="font-bold text-gray-900 group-hover:text-[#0fbcf9] transition-colors duration-300 truncate max-w-full">
-                            {user.display_name}
-                          </h4>
-                          {user.verified && (
-                            <div className="flex-shrink-0">
-                              <span className="inline-flex items-center px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-800 rounded-full group-hover:bg-[#0fbcf9]/20 group-hover:text-[#0fbcf9] transition-all duration-300">
-                                ✓ Verified
-                              </span>
-                            </div>
-                          )}
-                        </div>
-                        <p className="text-sm text-gray-600 group-hover:text-gray-700 transition-colors duration-300 truncate">
-                          @{user.username}
-                        </p>
-                        
-                        {/* Additional Info for Large Cards */}
-                        {isLargeCard && (
-                          <div className="mt-3 space-y-2">
-                            {user.location && (
-                              <div className="flex items-center justify-center space-x-1 text-xs text-gray-500">
-                                <MapPin className="w-3 h-3" />
-                                <span className="truncate">{user.location}</span>
-                              </div>
-                            )}
-                            {user.created_at && (
-                              <div className="flex items-center justify-center space-x-1 text-xs text-gray-500">
-                                <Calendar className="w-3 h-3" />
-                                <span>Joined {formatDate(user.created_at)}</span>
-                              </div>
-                            )}
-                            {user.url && (
-                              <div className="flex items-center justify-center space-x-1 text-xs text-gray-500">
-                                <Link className="w-3 h-3" />
-                                <a 
-                                  href={user.url} 
-                                  target="_blank" 
-                                  rel="noopener noreferrer"
-                                  className="text-[#0fbcf9] hover:underline truncate"
-                                  onClick={(e) => e.stopPropagation()}
-                                >
-                                  Website
-                                </a>
-                              </div>
-                            )}
-                          </div>
+                    {/* User Name and Username */}
+                    <div className="text-center">
+                      <div className="flex items-center justify-center space-x-1 mb-1">                        <h4 className={`font-semibold text-white truncate drop-shadow-md group-hover:text-blue-200 transition-colors duration-300 ${isLargeCard ? 'text-base' : 'text-sm'}`}>
+                          {user.display_name}
+                        </h4>
+                        {user.verified && (
+                          <span className={`text-blue-300 group-hover:text-blue-200 transition-colors duration-300 ${isLargeCard ? 'text-sm' : 'text-xs'}`}>✓</span>
                         )}
                       </div>
-
-                      {/* Enhanced Stats Grid */}
-                      <div className={`grid gap-3 ${isLargeCard ? 'grid-cols-2 lg:grid-cols-4' : 'grid-cols-2'}`}>
-                        <div className="bg-white/50 backdrop-blur-sm rounded-xl p-3 group-hover:bg-white/70 group-hover:border group-hover:border-[#0fbcf9]/20 transition-all duration-300">
-                          <div className="text-lg font-bold text-gray-900 group-hover:text-[#0fbcf9] transition-colors duration-300">
-                            {formatNumber(user.followers_count)}
-                          </div>
-                          <div className="text-xs text-gray-500 group-hover:text-gray-600 transition-colors duration-300">
-                            Followers
-                          </div>
-                        </div>
-                        <div className="bg-white/50 backdrop-blur-sm rounded-xl p-3 group-hover:bg-white/70 group-hover:border group-hover:border-[#0fbcf9]/20 transition-all duration-300">
-                          <div className="text-lg font-bold text-gray-900 group-hover:text-[#0fbcf9] transition-colors duration-300">
-                            {formatNumber(user.following_count)}
-                          </div>
-                          <div className="text-xs text-gray-500 group-hover:text-gray-600 transition-colors duration-300">
-                            Following
-                          </div>
-                        </div>
-                        
-                        {/* Additional stats for large cards */}
-                        {isLargeCard && (
-                          <>
-                            <div className="bg-white/50 backdrop-blur-sm rounded-xl p-3 group-hover:bg-white/70 group-hover:border group-hover:border-[#0fbcf9]/20 transition-all duration-300">
-                              <div className="text-lg font-bold text-gray-900 group-hover:text-[#0fbcf9] transition-colors duration-300">
-                                {formatNumber(user.tweets || 0)}
-                              </div>
-                              <div className="text-xs text-gray-500 group-hover:text-gray-600 transition-colors duration-300 flex items-center justify-center space-x-1">
-                                <MessageCircle className="w-3 h-3" />
-                                <span>Tweets</span>
-                              </div>
-                            </div>
-                            <div className="bg-white/50 backdrop-blur-sm rounded-xl p-3 group-hover:bg-white/70 group-hover:border group-hover:border-[#0fbcf9]/20 transition-all duration-300">
-                              <div className="text-lg font-bold text-gray-900 group-hover:text-[#0fbcf9] transition-colors duration-300">
-                                {formatNumber(user.favorites || 0)}
-                              </div>
-                              <div className="text-xs text-gray-500 group-hover:text-gray-600 transition-colors duration-300 flex items-center justify-center space-x-1">
-                                <Heart className="w-3 h-3" />
-                                <span>Likes</span>
-                              </div>
-                            </div>
-                          </>
-                        )}
-                      </div>
-
-                      {/* Bio preview */}
-                      {user.bio && (
-                        <div className="mt-4 p-3 bg-white/30 backdrop-blur-sm rounded-xl group-hover:bg-white/50 transition-all duration-300">
-                          <p className={`text-xs text-gray-600 group-hover:text-gray-700 transition-colors duration-300 ${isLargeCard ? 'line-clamp-4' : 'line-clamp-3'}`}>
-                            {user.bio}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Hover Tooltip for Sensitive Information */}
-                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
-                      <div className="absolute top-2 left-2 bg-black/80 backdrop-blur-lg text-white text-xs rounded-lg p-3 shadow-xl max-w-xs z-10">
-                        <div className="space-y-2">
-                          <div className="font-semibold text-[#0fbcf9] mb-2">Additional Details</div>
-                          
-                          {user.lang && (
-                            <div className="flex items-center space-x-2">
-                              <Globe className="w-3 h-3 text-gray-300" />
-                              <span className="text-gray-200">Language: {user.lang.toUpperCase()}</span>
-                            </div>
-                          )}
-                          
-                          {user.time_zone && (
-                            <div className="flex items-center space-x-2">
-                              <Clock className="w-3 h-3 text-gray-300" />
-                              <span className="text-gray-200">Timezone: {user.time_zone}</span>
-                            </div>
-                          )}
-                          
-                          {user.listed_count !== undefined && user.listed_count > 0 && (
-                            <div className="flex items-center space-x-2">
-                              <Users className="w-3 h-3 text-gray-300" />
-                              <span className="text-gray-200">Listed: {formatNumber(user.listed_count)} times</span>
-                            </div>
-                          )}
-                          
-                          {user.geo_enabled && (
-                            <div className="flex items-center space-x-2">
-                              <MapPin className="w-3 h-3 text-green-400" />
-                              <span className="text-green-300">Geo-location enabled</span>
-                            </div>
-                          )}
-                          
-                          {user.protected && (
-                            <div className="flex items-center space-x-2">
-                              <Shield className="w-3 h-3 text-yellow-400" />
-                              <span className="text-yellow-300">Protected account</span>
-                            </div>
-                          )}
-                          
-                          {user.profile_link_color && (
-                            <div className="flex items-center space-x-2">
-                              <Palette className="w-3 h-3 text-purple-400" />
-                              <span className="text-gray-200">
-                                Theme: 
-                                <span 
-                                  className="inline-block w-3 h-3 rounded-full ml-1 border border-white/30"
-                                  style={{ backgroundColor: `#${user.profile_link_color}` }}
-                                ></span>
-                              </span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Hover effect indicator */}
-                    <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                      <div className="w-2 h-2 bg-[#0fbcf9] rounded-full animate-pulse"></div>
+                      <p className={`text-white/90 truncate drop-shadow-md group-hover:text-white transition-colors duration-300 ${isLargeCard ? 'text-sm' : 'text-xs'}`}>
+                        @{user.username}
+                      </p>
                     </div>
                   </div>
+                </div>                {/* Comprehensive Stats Section */}
+                <div className={`${isLargeCard ? 'p-6' : 'p-4'} space-y-4`}>
+                  {/* Main Stats Grid */}
+                  <div className={`grid gap-3 ${isLargeCard ? 'grid-cols-4' : 'grid-cols-2'}`}>
+                    <div className="text-center bg-gray-50 rounded-lg p-2 group-hover:bg-blue-50 transition-colors duration-300">
+                      <div className={`font-semibold text-gray-900 group-hover:text-blue-600 transition-colors duration-300 ${isLargeCard ? 'text-lg' : 'text-sm'}`}>
+                        {formatNumber(user.followers_count)}
+                      </div>
+                      <div className={`text-gray-500 group-hover:text-blue-500 transition-colors duration-300 ${isLargeCard ? 'text-sm' : 'text-xs'}`}>Followers</div>
+                    </div>
+                    <div className="text-center bg-gray-50 rounded-lg p-2 group-hover:bg-blue-50 transition-colors duration-300">
+                      <div className={`font-semibold text-gray-900 group-hover:text-blue-600 transition-colors duration-300 ${isLargeCard ? 'text-lg' : 'text-sm'}`}>
+                        {formatNumber(user.following_count)}
+                      </div>
+                      <div className={`text-gray-500 group-hover:text-blue-500 transition-colors duration-300 ${isLargeCard ? 'text-sm' : 'text-xs'}`}>Following</div>
+                    </div>
+                    
+                    {/* Additional stats for large cards */}
+                    {isLargeCard && (
+                      <>
+                        <div className="text-center bg-gray-50 rounded-lg p-2 group-hover:bg-blue-50 transition-colors duration-300">
+                          <div className="text-lg font-semibold text-gray-900 group-hover:text-blue-600 transition-colors duration-300">
+                            {formatNumber(user.tweets || 0)}
+                          </div>
+                          <div className="text-sm text-gray-500 group-hover:text-blue-500 transition-colors duration-300">Tweets</div>
+                        </div>
+                        <div className="text-center bg-gray-50 rounded-lg p-2 group-hover:bg-blue-50 transition-colors duration-300">
+                          <div className="text-lg font-semibold text-gray-900 group-hover:text-blue-600 transition-colors duration-300">
+                            {formatNumber(user.favorites || 0)}
+                          </div>
+                          <div className="text-sm text-gray-500 group-hover:text-blue-500 transition-colors duration-300">Likes</div>
+                        </div>
+                      </>
+                    )}
+                  </div>
+
+                  {/* Additional Information Section */}
+                  <div className="space-y-2">
+                    {/* Location and Date for all cards */}
+                    <div className={`grid gap-2 ${isLargeCard ? 'grid-cols-2' : 'grid-cols-1'}`}>
+                      {user.location && (
+                        <div className="flex items-center space-x-1 text-gray-600 bg-gray-50 rounded-lg p-2 group-hover:bg-blue-50 group-hover:text-blue-600 transition-all duration-300">
+                          <svg className="w-3 h-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
+                          </svg>
+                          <span className={`truncate ${isLargeCard ? 'text-sm' : 'text-xs'}`}>{user.location}</span>
+                        </div>
+                      )}
+                      {user.created_at && (
+                        <div className="flex items-center space-x-1 text-gray-600 bg-gray-50 rounded-lg p-2 group-hover:bg-blue-50 group-hover:text-blue-600 transition-all duration-300">
+                          <svg className="w-3 h-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" />
+                          </svg>
+                          <span className={`truncate ${isLargeCard ? 'text-sm' : 'text-xs'}`}>
+                            Joined {new Date(user.created_at).getFullYear()}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Account Status Indicators */}
+                    <div className="flex flex-wrap gap-1">
+                      {user.protected && (
+                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-yellow-100 text-yellow-800 group-hover:bg-yellow-200 transition-colors duration-300">
+                          🔒 Private
+                        </span>
+                      )}
+                      {!user.protected && (
+                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-green-100 text-green-800 group-hover:bg-green-200 transition-colors duration-300">
+                          🌍 Public
+                        </span>
+                      )}
+                      {user.verified && (
+                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800 group-hover:bg-blue-200 transition-colors duration-300">
+                          ✓ Verified
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Bio for all cards (with different line limits) */}
+                  {user.bio && (
+                    <div className="bg-gray-50 rounded-lg p-3 group-hover:bg-blue-50 transition-colors duration-300">
+                      <p className={`text-gray-600 group-hover:text-blue-700 transition-colors duration-300 ${isLargeCard ? 'text-sm line-clamp-4' : 'text-xs line-clamp-2'}`}>
+                        {user.bio}
+                      </p>
+                    </div>
+                  )}                  {/* Engagement Rate for large cards */}
+                  {isLargeCard && (user.tweets || 0) > 0 && (user.favorites || 0) > 0 && (
+                    <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-3 group-hover:from-blue-100 group-hover:to-purple-100 transition-all duration-300">
+                      <div className="text-center">
+                        <div className="text-sm font-semibold text-gray-700 group-hover:text-blue-700 transition-colors duration-300">
+                          Engagement: {(((user.favorites || 0) / (user.tweets || 1)) * 100).toFixed(1)}%
+                        </div>
+                        <div className="text-xs text-gray-500 group-hover:text-blue-500 transition-colors duration-300">
+                          Likes per Tweet Ratio
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>                {/* Hover-only View Profile Button */}
+                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-sm">
+                  <button className="px-6 py-3 bg-white text-gray-900 rounded-lg font-medium text-sm hover:bg-gray-50 transition-all duration-200 transform hover:scale-105 shadow-lg">
+                    View Profile
+                  </button>
                 </div>
-              );
-            })}
+              </div>
+            );
+          })}
           </div>
         </div>
       )}

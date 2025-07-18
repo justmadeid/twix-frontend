@@ -151,7 +151,7 @@ function App() {
   return (
     <div className="min-h-screen bg-gray-50 p-4 relative">
       {/* Background with grid pattern */}
-      <div className="absolute inset-0 bg-[#0fbcf9]/5 backdrop-blur-3xl"></div>      <div 
+      <div className="absolute inset-0 bg-[#0fbcf9]/5 backdrop-blur-3xl"></div>      <div
         className="absolute inset-0 opacity-60"
         style={{
           backgroundImage: `
@@ -263,18 +263,17 @@ function App() {
                   <div key={item.id} className="relative group">
                     <button
                       onClick={() => setActivePanel(item.id)}
-                      className={`w-full flex items-center ${sidebarExpanded ? 'space-x-3 px-4' : 'justify-center px-2'} py-3 rounded-xl transition-all duration-200 ${
-                        activePanel === item.id
-                          ? 'bg-[#0fbcf9] text-white shadow-lg transform scale-[1.02] backdrop-blur-sm border border-[#0fbcf9]/20'
-                          : 'text-gray-700 hover:bg-[#0fbcf9]/10 hover:scale-[1.01] hover:backdrop-blur-sm'
-                      }`}
+                      className={`w-full flex items-center ${sidebarExpanded ? 'space-x-3 px-4' : 'justify-center px-2'} py-3 rounded-xl transition-all duration-200 ${activePanel === item.id
+                        ? 'bg-[#0fbcf9] text-white shadow-lg transform scale-[1.02] backdrop-blur-sm border border-[#0fbcf9]/20'
+                        : 'text-gray-700 hover:bg-[#0fbcf9]/10 hover:scale-[1.01] hover:backdrop-blur-sm'
+                        }`}
                     >
                       <item.icon className={`w-5 h-5 ${activePanel === item.id ? 'text-white' : 'text-gray-500'}`} />
                       {sidebarExpanded && (
                         <span className="text-sm font-medium">{item.label}</span>
                       )}
                     </button>
-                    
+
                     {/* Tooltip for collapsed state */}
                     {!sidebarExpanded && (
                       <div className="absolute left-full ml-2 top-1/2 transform -translate-y-1/2 bg-gray-900 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
@@ -295,7 +294,7 @@ function App() {
                   </div>
                 </div>
               )}
-              
+
               {!sidebarExpanded && (
                 <div className="mt-6 pt-6 border-t border-gray-200/50 flex justify-center">
                   <div className={`w-3 h-3 rounded-full ${isLoggedIn ? 'bg-green-500' : 'bg-gray-400'}`}></div>
@@ -342,11 +341,10 @@ function App() {
                           setActivePanel(item.id);
                           setSidebarOpen(false);
                         }}
-                        className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 ${
-                          activePanel === item.id
-                            ? 'bg-[#0fbcf9] text-white shadow-lg transform scale-[1.02] backdrop-blur-sm border border-[#0fbcf9]/20'
-                            : 'text-gray-700 hover:bg-[#0fbcf9]/10 hover:scale-[1.01] hover:backdrop-blur-sm'
-                        }`}
+                        className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 ${activePanel === item.id
+                          ? 'bg-[#0fbcf9] text-white shadow-lg transform scale-[1.02] backdrop-blur-sm border border-[#0fbcf9]/20'
+                          : 'text-gray-700 hover:bg-[#0fbcf9]/10 hover:scale-[1.01] hover:backdrop-blur-sm'
+                          }`}
                       >
                         <item.icon
                           className={`w-5 h-5 ${activePanel === item.id ? 'text-white' : 'text-gray-500'}`}
