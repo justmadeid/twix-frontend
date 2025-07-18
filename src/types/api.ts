@@ -94,3 +94,48 @@ export interface ApiResponse<T> {
   message?: string;
   task_id?: string;
 }
+
+// Health Check Types
+export interface HealthService {
+  service_name: string;
+  status: 'healthy' | 'degraded' | 'unhealthy';
+  message: string;
+  response_time_ms: number;
+  last_check: string;
+  details: {
+    [key: string]: any;
+  };
+}
+
+export interface HealthSystem {
+  uptime_seconds: number;
+  memory_usage_mb: number;
+  cpu_usage_percent: number;
+  disk_usage_percent: number;
+  python_version: string;
+  application_version: string;
+}
+
+export interface HealthDetails {
+  total_services_checked: number;
+  healthy_services: number;
+  degraded_services: number;
+  unhealthy_services: number;
+  environment: string;
+  debug_mode: boolean;
+  api_version: string;
+}
+
+export interface HealthResponse {
+  status: string;
+  message: string;
+  data: {
+    status: 'healthy' | 'degraded' | 'unhealthy';
+    timestamp: string;
+    overall_health: string;
+    services: HealthService[];
+    system: HealthSystem;
+    details: HealthDetails;
+    response_time_ms: number;
+  };
+}

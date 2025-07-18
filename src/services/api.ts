@@ -6,6 +6,7 @@ import {
   SearchUsersRequest,
   LoginRequest,
   ApiResponse,
+  HealthResponse,
 } from '../types/api';
 
 class TwitterScraperAPI {
@@ -131,11 +132,10 @@ class TwitterScraperAPI {
     );
     return response.data;
   }
-
   // Health Check
-  async healthCheck(): Promise<{ status: string; timestamp: string }> {
-    const response: AxiosResponse<{ status: string; timestamp: string }> = await this.api.get(
-      '/health'
+  async healthCheck(): Promise<HealthResponse> {
+    const response: AxiosResponse<HealthResponse> = await this.api.get(
+      '/twitter/health'
     );
     return response.data;
   }

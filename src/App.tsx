@@ -6,6 +6,7 @@ import { UserSearchPanel } from './components/UserSearchPanel';
 import { TimelinePanel } from './components/TimelinePanel';
 import { FollowersPanel } from './components/FollowersPanel';
 import { StatusPanel } from './components/StatusPanel';
+import { HealthDashboard } from './components/HealthDashboard';
 import {
   Twitter,
   Settings,
@@ -78,74 +79,8 @@ function App() {
       case 'followers':
         return <FollowersPanel />;
       case 'status':
-        return <StatusPanel />;
-      default:
-        return (
-          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-            {/* Dashboard Overview */}
-            <div className="lg:col-span-2 xl:col-span-3">
-              <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-gray-200/50 shadow-lg p-6 mb-6">
-                <h2 className="text-xl font-semibold text-gray-900 mb-4">Dashboard Overview</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                  <div className="bg-[#0fbcf9] rounded-xl p-4 text-white shadow-lg backdrop-blur-sm">
-                    <h3 className="text-sm font-medium">Total Credentials</h3>
-                    <p className="text-2xl font-bold">{credentials.length}</p>
-                  </div>
-                  <div className="bg-[#0fbcf9] rounded-xl p-4 text-white shadow-lg backdrop-blur-sm">
-                    <h3 className="text-sm font-medium">Login Status</h3>
-                    <p className="text-2xl font-bold">{isLoggedIn ? 'Active' : 'Inactive'}</p>
-                  </div>
-                  <div className="bg-[#0fbcf9] rounded-xl p-4 text-white shadow-lg backdrop-blur-sm">
-                    <h3 className="text-sm font-medium">Active Tasks</h3>
-                    <p className="text-2xl font-bold">0</p>
-                  </div>
-                  <div className="bg-[#0fbcf9] rounded-xl p-4 text-white shadow-lg backdrop-blur-sm">
-                    <h3 className="text-sm font-medium">API Health</h3>
-                    <p className="text-2xl font-bold">Good</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Quick Actions */}            <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-gray-200/50 shadow-lg p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
-              <div className="space-y-3">
-                {menuItems.slice(1).map((item) => (
-                  <button
-                    key={item.id}
-                    onClick={() => setActivePanel(item.id)}
-                    className="w-full flex items-center space-x-3 p-3 rounded-xl hover:bg-[#0fbcf9]/10 transition-colors duration-200"
-                  >
-                    <item.icon className="w-5 h-5 text-[#0fbcf9]" />
-                    <span className="text-sm text-gray-700">{item.label}</span>
-                    <ChevronRight className="w-4 h-4 text-gray-400 ml-auto" />
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Recent Activity */}
-            <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-gray-200/50 shadow-lg p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
-              <div className="space-y-3">
-                <div className="flex items-center space-x-3 p-3 rounded-xl bg-gray-50">
-                  <div className="w-2 h-2 bg-[#0fbcf9] rounded-full"></div>
-                  <div>
-                    <p className="text-sm text-gray-700">Dashboard loaded</p>
-                    <p className="text-xs text-gray-500">Just now</p>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-3 p-3 rounded-xl bg-gray-50">
-                  <div className="w-2 h-2 bg-[#0fbcf9] rounded-full"></div>
-                  <div>
-                    <p className="text-sm text-gray-700">System health check</p>
-                    <p className="text-xs text-gray-500">2 min ago</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        );
+        return <StatusPanel />;      default:
+        return <HealthDashboard />;
     }
   };
   return (
