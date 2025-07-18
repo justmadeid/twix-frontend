@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { twitterAPI } from '../services/api';
 import { TwitterUser } from '../types/api';
 import TaskMonitor from './TaskMonitor';
-import { UserPlus, UserMinus, User } from 'lucide-react';
+import { UserPlus, UserMinus, User, Heart, MessageCircle, Calendar, MapPin } from 'lucide-react';
+import { format } from 'date-fns';
 
 export const FollowersPanel: React.FC = () => {
   const [username, setUsername] = useState('');
@@ -31,7 +32,17 @@ export const FollowersPanel: React.FC = () => {
 
   const handleTaskComplete = (result: any) => {
     console.log('Fetch completed:', result);
-    setUsers(result.users || []);
+    // Handle different possible result structures
+    let usersData = [];
+    if (result.users) {
+      usersData = result.users;
+    } else if (Array.isArray(result)) {
+      usersData = result;
+    } else if (result.data && Array.isArray(result.data)) {
+      usersData = result.data;
+    }
+    
+    setUsers(usersData || []);
     setCurrentTaskId(null);
     setIsLoading(false);
   };
@@ -42,105 +53,202 @@ export const FollowersPanel: React.FC = () => {
     setIsLoading(false);
   };
 
-  const formatNumber = (num: number) => {
-    if (num >= 1000000) {
-      return (num / 1000000).toFixed(1) + 'M';
-    } else if (num >= 1000) {
-      return (num / 1000).toFixed(1) + 'K';
+  // Safe number formatting function to prevent toString errors
+  const formatNumber = (num: number | undefined | null) => {
+    if (num === undefined || num === null || isNaN(num)) {
+      return '0';
     }
-    return num.toString();
+    const numValue = Number(num);
+    if (numValue >= 1000000) {
+      return (numValue / 1000000).toFixed(1) + 'M';
+    } else if (numValue >= 1000) {
+      return (numValue / 1000).toFixed(1) + 'K';
+    }
+    return numValue.toString();
+  };
+
+  // Content-aware bento grid sizing for user cards
+  const getBentoSize = (index: number, total: number, user: TwitterUser) => {
+    const hasExtensiveInfo = !!(user.bio && user.location);
+    const isHighFollowerCount = (user.followers_count || 0) > 10000;
+    const isVerified = user.verified;
+    
+    // Calculate content density score
+    const contentScore = 
+      (hasExtensiveInfo ? 2 : 0) +
+      (isHighFollowerCount ? 2 : 0) +
+      (isVerified ? 1 : 0);
+    
+    // First card - enlarge if it has significant content
+    if (index === 0 && total > 3 && contentScore >= 2) {
+      return "md:col-span-2";
+    }
+    
+    // High content density gets larger cards occasionally
+    if (contentScore >= 3 && index % 8 === 0 && index > 0) {
+      return "lg:col-span-2";
+    }
+    
+    // Verified users or high followers get occasional wide treatment
+    if ((isVerified || isHighFollowerCount) && index % 12 === 0 && index > 0) {
+      return "md:col-span-2";
+    }
+    
+    return "";
   };
   return (
-    <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 p-8">
-      <div className="flex items-center justify-between mb-8">
-        <div className="flex items-center space-x-3">
-          <div className="p-2 bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl border border-indigo-100">
-            <UserPlus className="w-5 h-5 text-indigo-600" />
+    <div className="space-y-6">
+      {/* Header Container - Bento Card */}
+      <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-200/50 p-6 hover:shadow-xl transition-all duration-300">
+        <div className="flex items-center space-x-4">
+          <div className="p-3 bg-gradient-to-br from-purple-500/10 to-indigo-500/5 rounded-2xl border border-purple-500/20">
+            <UserPlus className="w-6 h-6 text-purple-500" />
           </div>
           <div>
-            <h2 className="text-xl font-semibold text-gray-900">Followers & Following</h2>
-            <p className="text-sm text-gray-500">Explore user connections and relationships</p>
+            <h2 className="text-2xl font-bold text-gray-900">Followers & Following</h2>
+            <p className="text-sm text-gray-500 mt-1">Explore user connections and relationships</p>
           </div>
-        </div>
-      </div>      {/* Tab Navigation */}
-      <div className="flex space-x-2 mb-8 p-1 bg-gray-100/80 backdrop-blur-sm rounded-xl">
-        <button
-          onClick={() => setActiveTab('followers')}
-          className={`flex-1 py-3 px-4 text-sm font-semibold rounded-lg transition-all duration-200 ${
-            activeTab === 'followers'
-              ? 'bg-white text-indigo-700 shadow-sm transform scale-[1.02]'
-              : 'text-gray-600 hover:text-gray-800 hover:bg-white/50'
-          }`}
-        >
-          <div className="flex items-center justify-center space-x-2">
-            <UserMinus className="w-4 h-4" />
-            <span>Followers</span>
-          </div>
-        </button>
-        <button
-          onClick={() => setActiveTab('following')}
-          className={`flex-1 py-3 px-4 text-sm font-semibold rounded-lg transition-all duration-200 ${
-            activeTab === 'following'
-              ? 'bg-white text-indigo-700 shadow-sm transform scale-[1.02]'
-              : 'text-gray-600 hover:text-gray-800 hover:bg-white/50'
-          }`}
-        >
-          <div className="flex items-center justify-center space-x-2">
-            <UserPlus className="w-4 h-4" />
-            <span>Following</span>
-          </div>
-        </button>
-      </div>      <form onSubmit={handleFetchUsers} className="space-y-6 mb-8">
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-3">
-            Username
-          </label>
-          <input
-            type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white/80 backdrop-blur-sm transition-all duration-200 hover:bg-white"
-            placeholder="Enter username (without @)"
-            required
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-3">
-            Number of Users
-          </label>
-          <select
-            value={userCount}
-            onChange={(e) => setUserCount(parseInt(e.target.value))}
-            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white/80 backdrop-blur-sm transition-all duration-200 hover:bg-white"
-          >
-            <option value={25}>25 users</option>
-            <option value={50}>50 users</option>
-            <option value={100}>100 users</option>
-            <option value={200}>200 users</option>
-          </select>
-        </div>
-
-        <button
-          type="submit"
-          disabled={isLoading || !username.trim()}
-          className="w-full flex items-center justify-center space-x-2 px-6 py-3 text-sm font-semibold text-white bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl hover:from-indigo-700 hover:to-purple-700 disabled:from-gray-300 disabled:to-gray-400 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]"
-        >
-          {isLoading ? (            <>
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-              <span>Fetching {activeTab}...</span>
-            </>
-          ) : (
-            <>
-              {activeTab === 'followers' ? <UserMinus className="w-4 h-4" /> : <UserPlus className="w-4 h-4" />}
-              <span>Fetch {activeTab}</span>
-            </>
+          {/* User count display */}
+          {users.length > 0 && (
+            <div className="ml-auto hidden sm:block">
+              <div className="px-3 py-1 bg-purple-500/10 text-purple-500 text-sm font-medium rounded-full">
+                {users.length} {activeTab}
+              </div>
+            </div>
           )}
-        </button>
-      </form>
+        </div>
+      </div>
 
+      {/* Enhanced Bento Grid Form Layout */}
+      <div className="grid grid-cols-12 gap-4">
+        {/* Tab Navigation - Bento Card */}
+        <div className="col-span-12 lg:col-span-3">
+          <div className="group relative overflow-hidden bg-gradient-to-br from-purple-500/10 backdrop-blur-lg rounded-2xl border border-purple-500/20 p-6 h-full hover:from-purple-500/15 hover:border-purple-500/30 hover:shadow-lg hover:scale-[1.01] transition-all duration-300">
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-purple-500/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out"></div>
+            
+            <div className="relative">
+              <div className="flex items-center space-x-3 mb-4">
+                <div className="p-2 bg-purple-500/10 rounded-xl group-hover:bg-purple-500/20 group-hover:scale-110 transition-all duration-300">
+                  <UserPlus className="w-5 h-5 text-purple-500" />
+                </div>
+                <label className="text-sm font-bold text-gray-700 group-hover:text-purple-500 transition-colors duration-300">
+                  Connection Type
+                </label>
+              </div>
+              
+              <div className="space-y-2">
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('followers')}
+                  className={`w-full py-3 px-4 text-sm font-semibold rounded-xl transition-all duration-200 ${
+                    activeTab === 'followers'
+                      ? 'bg-purple-500 text-white shadow-lg transform scale-[1.02]'
+                      : 'bg-white/60 text-gray-600 hover:bg-white/80 hover:text-purple-500'
+                  }`}
+                >
+                  <div className="flex items-center justify-center space-x-2">
+                    <UserMinus className="w-4 h-4" />
+                    <span>Followers</span>
+                  </div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('following')}
+                  className={`w-full py-3 px-4 text-sm font-semibold rounded-xl transition-all duration-200 ${
+                    activeTab === 'following'
+                      ? 'bg-purple-500 text-white shadow-lg transform scale-[1.02]'
+                      : 'bg-white/60 text-gray-600 hover:bg-white/80 hover:text-purple-500'
+                  }`}
+                >
+                  <div className="flex items-center justify-center space-x-2">
+                    <UserPlus className="w-4 h-4" />
+                    <span>Following</span>
+                  </div>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Username Input - Bento Card */}
+        <div className="col-span-12 lg:col-span-6">
+          <div className="group relative overflow-hidden bg-gradient-to-br from-indigo-500/10 backdrop-blur-lg rounded-2xl border border-indigo-500/20 p-6 h-full hover:from-indigo-500/15 hover:border-indigo-500/30 hover:shadow-lg hover:scale-[1.01] transition-all duration-300">
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-indigo-500/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out"></div>
+
+            <div className="relative">
+              <div className="flex items-center space-x-3 mb-4">
+                <div className="p-2 bg-indigo-500/10 rounded-xl group-hover:bg-indigo-500/20 group-hover:scale-110 transition-all duration-300">
+                  <User className="w-5 h-5 text-indigo-500" />
+                </div>
+                <label className="text-sm font-bold text-gray-700 group-hover:text-indigo-500 transition-colors duration-300">
+                  Username
+                </label>
+              </div>
+              <input
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className="w-full px-5 py-4 border-2 border-gray-200/50 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white/70 backdrop-blur-sm transition-all duration-300 hover:bg-white/90 hover:border-indigo-500/30 text-sm placeholder-gray-400 shadow-sm focus:shadow-md"
+                placeholder="Enter username (without @)..."
+                required
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Action Section - Bento Card */}
+        <div className="col-span-12 lg:col-span-3">
+          <form onSubmit={handleFetchUsers} className="h-full">
+            <div className="group relative overflow-hidden bg-white/70 backdrop-blur-lg rounded-2xl border border-gray-200/50 p-6 h-full hover:bg-white/90 hover:border-purple-500/20 hover:shadow-lg hover:scale-[1.01] transition-all duration-300">
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+
+              <div className="relative">
+                <div className="flex items-center space-x-3 mb-4">
+                  <div className="p-2 bg-purple-500/20 rounded-xl group-hover:bg-purple-500/30 group-hover:scale-110 transition-all duration-300">
+                    <MessageCircle className="w-5 h-5 text-purple-500" />
+                  </div>
+                  <label className="text-sm font-bold text-gray-700 group-hover:text-purple-500 transition-colors duration-300">
+                    Count: {userCount}
+                  </label>
+                </div>
+                
+                <select
+                  value={userCount}
+                  onChange={(e) => setUserCount(parseInt(e.target.value))}
+                  className="w-full px-3 py-2 mb-4 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white/80 backdrop-blur-sm transition-all duration-200 hover:bg-white text-sm"
+                >
+                  <option value={25}>25 users</option>
+                  <option value={50}>50 users</option>
+                  <option value={100}>100 users</option>
+                  <option value={200}>200 users</option>
+                </select>
+
+                <button
+                  type="submit"
+                  disabled={isLoading || !username.trim()}
+                  className="w-full px-4 py-3 bg-gradient-to-r from-purple-500 to-indigo-500 text-white rounded-xl hover:from-purple-600 hover:to-indigo-600 hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 text-sm font-bold shadow-lg"
+                >
+                  {isLoading ? (
+                    <div className="flex items-center justify-center space-x-2">
+                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                      <span>Fetching...</span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-center space-x-2">
+                      {activeTab === 'followers' ? <UserMinus className="w-4 h-4" /> : <UserPlus className="w-4 h-4" />}
+                      <span>Fetch</span>
+                    </div>
+                  )}
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      {/* Task Monitor Section */}
       {currentTaskId && (
-        <div className="mb-8 p-4 bg-indigo-50/50 backdrop-blur-sm rounded-xl border border-indigo-100">
+        <div className="p-4 bg-purple-500/10 backdrop-blur-sm rounded-xl border border-purple-500/20">
           <TaskMonitor
             taskId={currentTaskId}
             onComplete={handleTaskComplete}
@@ -149,55 +257,198 @@ export const FollowersPanel: React.FC = () => {
         </div>
       )}
 
+      {/* Users Stats Cards - when data is available */}
       {users.length > 0 && (
-        <div className="space-y-4">
-          <div className="flex items-center space-x-2">
-            <div className="p-1.5 bg-gradient-to-br from-indigo-50 to-purple-50 rounded-lg border border-indigo-100">
-              {activeTab === 'followers' ? <UserMinus className="w-4 h-4 text-indigo-600" /> : <UserPlus className="w-4 h-4 text-indigo-600" />}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {/* Total Users Card */}
+          <div className="group relative overflow-hidden bg-gradient-to-br from-purple-50/80 to-indigo-50/80 backdrop-blur-sm rounded-2xl border border-purple-100/50 p-6 hover:shadow-lg hover:scale-105 transition-all duration-300">
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-100/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <div className="relative">
+              <div className="flex items-center space-x-3 mb-3">
+                <div className="p-2 bg-purple-100 rounded-xl group-hover:bg-purple-200 transition-colors duration-300">
+                  <User className="w-4 h-4 text-purple-600" />
+                </div>
+                <h3 className="text-sm font-bold text-gray-700 group-hover:text-purple-700 transition-colors duration-300">Total</h3>
+              </div>
+              <p className="text-2xl font-bold text-purple-700 mb-1">{users.length}</p>
+              <p className="text-xs text-purple-600">{activeTab}</p>
             </div>
-            <h3 className="font-semibold text-gray-900">{activeTab === 'followers' ? 'Followers' : 'Following'} ({users.length})</h3>
           </div>
-          <div className="max-h-96 overflow-y-auto custom-scrollbar space-y-3">
-            {users.map((user) => (
-              <div key={user.id} className="flex items-center space-x-4 p-4 bg-white/60 backdrop-blur-sm rounded-xl border border-white/40 hover:bg-white/80 transition-all duration-200">                <div className="flex-shrink-0">
-                  {user.profile_image_url ? (
-                    <img
-                      src={user.profile_image_url}
-                      alt={user.display_name}
-                      className="w-12 h-12 rounded-full border-2 border-white shadow-sm"
-                    />
-                  ) : (
-                    <div className="w-12 h-12 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center border-2 border-white shadow-sm">
-                      <User className="w-6 h-6 text-gray-500" />
+
+          {/* Verified Users Card */}
+          <div className="group relative overflow-hidden bg-gradient-to-br from-blue-50/80 to-cyan-50/80 backdrop-blur-sm rounded-2xl border border-blue-100/50 p-6 hover:shadow-lg hover:scale-105 transition-all duration-300">
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-100/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <div className="relative">
+              <div className="flex items-center space-x-3 mb-3">
+                <div className="p-2 bg-blue-100 rounded-xl group-hover:bg-blue-200 transition-colors duration-300">
+                  <Heart className="w-4 h-4 text-blue-600" />
+                </div>
+                <h3 className="text-sm font-bold text-gray-700 group-hover:text-blue-700 transition-colors duration-300">Verified</h3>
+              </div>
+              <p className="text-2xl font-bold text-blue-700 mb-1">
+                {users.filter(user => user.verified).length}
+              </p>
+              <p className="text-xs text-blue-600">users</p>
+            </div>
+          </div>
+
+          {/* Average Followers Card */}
+          <div className="group relative overflow-hidden bg-gradient-to-br from-emerald-50/80 to-teal-50/80 backdrop-blur-sm rounded-2xl border border-emerald-100/50 p-6 hover:shadow-lg hover:scale-105 transition-all duration-300">
+            <div className="absolute inset-0 bg-gradient-to-br from-emerald-100/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <div className="relative">
+              <div className="flex items-center space-x-3 mb-3">
+                <div className="p-2 bg-emerald-100 rounded-xl group-hover:bg-emerald-200 transition-colors duration-300">
+                  <UserMinus className="w-4 h-4 text-emerald-600" />
+                </div>
+                <h3 className="text-sm font-bold text-gray-700 group-hover:text-emerald-700 transition-colors duration-300">Avg Followers</h3>
+              </div>
+              <p className="text-2xl font-bold text-emerald-700 mb-1">
+                {users.length > 0 
+                  ? formatNumber(Math.round(users.reduce((sum, user) => sum + (user.followers_count || 0), 0) / users.length))
+                  : '0'
+                }
+              </p>
+              <p className="text-xs text-emerald-600">per user</p>
+            </div>
+          </div>
+
+          {/* With Bio Card */}
+          <div className="group relative overflow-hidden bg-gradient-to-br from-orange-50/80 to-amber-50/80 backdrop-blur-sm rounded-2xl border border-orange-100/50 p-6 hover:shadow-lg hover:scale-105 transition-all duration-300">
+            <div className="absolute inset-0 bg-gradient-to-br from-orange-100/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <div className="relative">
+              <div className="flex items-center space-x-3 mb-3">
+                <div className="p-2 bg-orange-100 rounded-xl group-hover:bg-orange-200 transition-colors duration-300">
+                  <MessageCircle className="w-4 h-4 text-orange-600" />
+                </div>
+                <h3 className="text-sm font-bold text-gray-700 group-hover:text-orange-700 transition-colors duration-300">With Bio</h3>
+              </div>
+              <p className="text-2xl font-bold text-orange-700 mb-1">
+                {users.filter(user => user.bio && user.bio.trim() !== '').length}
+              </p>
+              <p className="text-xs text-orange-600">users</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Users Bento Grid - Enhanced Display */}
+      {users.length > 0 && (
+        <div className="bg-gradient-to-br from-slate-50/80 to-gray-50/80 backdrop-blur-sm rounded-2xl border border-slate-100/50 p-6 hover:shadow-lg transition-all duration-300">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center space-x-3">
+              <div className="p-2 bg-slate-100 rounded-xl">
+                {activeTab === 'followers' ? <UserMinus className="w-5 h-5 text-slate-600" /> : <UserPlus className="w-5 h-5 text-slate-600" />}
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900">
+                {activeTab === 'followers' ? 'Followers' : 'Following'} ({users.length})
+              </h3>
+            </div>
+          </div>
+          
+          <div className="grid grid-fit-content grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 max-h-[800px] overflow-y-auto custom-scrollbar">
+            {users.map((user, index) => {
+              const bentoClass = getBentoSize(index, users.length, user);
+              const isLargeCard = bentoClass.includes('col-span-2');
+              
+              return (
+                <div 
+                  key={user.id} 
+                  className={`group relative overflow-hidden card-compact content-fit p-4 bg-white/90 backdrop-blur-sm rounded-2xl border border-white/60 hover:bg-white/95 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 animate-fade-in-up ${bentoClass}`}
+                  style={{ animationDelay: `${index * 0.05}s` }}
+                >
+                  {/* User Header */}
+                  <div className="flex items-start space-x-3 mb-3">
+                    <div className="flex-shrink-0">
+                      {user.profile_image_url ? (
+                        <img
+                          src={user.profile_image_url}
+                          alt={user.display_name}
+                          className={`rounded-2xl border-2 border-white shadow-sm group-hover:border-purple-300 transition-all duration-300 ${isLargeCard ? 'w-16 h-16' : 'w-12 h-12'}`}
+                        />
+                      ) : (
+                        <div className={`bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center border-2 border-white shadow-sm group-hover:border-purple-300 transition-all duration-300 ${isLargeCard ? 'w-16 h-16' : 'w-12 h-12'}`}>
+                          <User className={`text-gray-500 ${isLargeCard ? 'w-8 h-8' : 'w-6 h-6'}`} />
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center space-x-2 mb-1">
+                        <h4 className={`font-semibold text-gray-900 truncate group-hover:text-purple-600 transition-colors duration-300 ${isLargeCard ? 'text-base' : 'text-sm'}`}>
+                          {user.display_name}
+                        </h4>
+                        {user.verified && (
+                          <span className="inline-flex items-center px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
+                            ✓
+                          </span>
+                        )}
+                      </div>
+                      <span className={`text-gray-500 truncate group-hover:text-purple-500 transition-colors duration-300 ${isLargeCard ? 'text-sm' : 'text-xs'}`}>
+                        @{user.username}
+                      </span>
+                    </div>
+                  </div>
+                  
+                  {/* User Bio */}
+                  {user.bio && (
+                    <div className="mb-3">
+                      <p className={`text-gray-700 leading-relaxed group-hover:text-gray-800 transition-colors duration-300 ${
+                        isLargeCard ? 'text-sm' : 'text-xs'
+                      } ${
+                        isLargeCard ? '' : 'line-clamp-3'
+                      }`}>
+                        {user.bio}
+                      </p>
                     </div>
                   )}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center space-x-2 mb-1">
-                    <p className="text-sm font-semibold text-gray-900 truncate">
-                      {user.display_name}
-                    </p>
-                    {user.verified && (
-                      <span className="inline-flex items-center px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
-                        Verified
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-sm text-gray-600 truncate mb-2">@{user.username}</p>
-                  {user.bio && (
-                    <p className="text-xs text-gray-500 truncate mb-2">{user.bio}</p>
+
+                  {/* Location & Join Date */}
+                  {(user.location || user.created_at) && (
+                    <div className="mb-3 space-y-1">
+                      {user.location && (
+                        <div className="flex items-center space-x-1 text-gray-500">
+                          <MapPin className="w-3 h-3" />
+                          <span className="text-xs truncate">{user.location}</span>
+                        </div>
+                      )}
+                      {user.created_at && (
+                        <div className="flex items-center space-x-1 text-gray-500">
+                          <Calendar className="w-3 h-3" />
+                          <span className="text-xs">
+                            Joined {format(new Date(user.created_at), 'MMM yyyy')}
+                          </span>
+                        </div>
+                      )}
+                    </div>
                   )}
-                  <div className="flex items-center space-x-4">
-                    <span className="text-xs text-gray-500 bg-gray-50 px-2 py-1 rounded-md">
-                      {formatNumber(user.followers_count)} followers
-                    </span>
-                    <span className="text-xs text-gray-500 bg-gray-50 px-2 py-1 rounded-md">
-                      {formatNumber(user.following_count)} following
-                    </span>
+                  
+                  {/* User Stats */}
+                  <div className="flex items-center justify-between mt-auto pt-2">
+                    <div className="flex items-center space-x-3">
+                      <div className="text-center">
+                        <p className={`font-bold text-gray-900 ${isLargeCard ? 'text-sm' : 'text-xs'}`}>
+                          {formatNumber(user.followers_count)}
+                        </p>
+                        <p className="text-xs text-gray-500">followers</p>
+                      </div>
+                      <div className="text-center">
+                        <p className={`font-bold text-gray-900 ${isLargeCard ? 'text-sm' : 'text-xs'}`}>
+                          {formatNumber(user.following_count)}
+                        </p>
+                        <p className="text-xs text-gray-500">following</p>
+                      </div>
+                      {user.tweets && (
+                        <div className="text-center">
+                          <p className={`font-bold text-gray-900 ${isLargeCard ? 'text-sm' : 'text-xs'}`}>
+                            {formatNumber(user.tweets)}
+                          </p>
+                          <p className="text-xs text-gray-500">tweets</p>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}
