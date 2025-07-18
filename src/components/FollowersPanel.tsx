@@ -13,8 +13,8 @@ export const FollowersPanel: React.FC = () => {
   const [users, setUsers] = useState<TwitterUser[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleFetchUsers = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleFetchUsers = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     if (!username.trim()) return;
 
     try {
@@ -27,6 +27,50 @@ export const FollowersPanel: React.FC = () => {
     } catch (error) {
       console.error('Fetch failed:', error);
       setIsLoading(false);
+    }
+  };
+
+  // Handle tab switching with automatic fetch
+  const handleTabSwitch = async (tab: 'followers' | 'following') => {
+    setActiveTab(tab);
+    // If username is provided, automatically fetch data for the new tab
+    if (username.trim() && !isLoading) {
+      try {
+        setIsLoading(true);
+        setUsers([]);
+        const response = tab === 'followers' 
+          ? await twitterAPI.getUserFollowers(username, userCount)
+          : await twitterAPI.getUserFollowing(username, userCount);
+        setCurrentTaskId(response.data.task_id);
+      } catch (error) {
+        console.error('Auto-fetch failed:', error);
+        setIsLoading(false);
+      }
+    }
+  };
+
+  // Auto-fetch followers when username is entered for the first time
+  const handleUsernameChange = (value: string) => {
+    setUsername(value);
+    // Clear existing data when username changes
+    if (users.length > 0) {
+      setUsers([]);
+    }
+  };
+
+  // Auto-fetch followers when username is completed (on blur)
+  const handleAutoFetch = async () => {
+    if (username.trim() && !isLoading && users.length === 0) {
+      // Default to fetching followers first
+      setActiveTab('followers');
+      try {
+        setIsLoading(true);
+        const response = await twitterAPI.getUserFollowers(username, userCount);
+        setCurrentTaskId(response.data.task_id);
+      } catch (error) {
+        console.error('Auto-fetch failed:', error);
+        setIsLoading(false);
+      }
     }
   };
 
@@ -106,7 +150,9 @@ export const FollowersPanel: React.FC = () => {
           </div>
           <div>
             <h2 className="text-2xl font-bold text-gray-900">Followers & Following</h2>
-            <p className="text-sm text-gray-500 mt-1">Explore user connections and relationships</p>
+            <p className="text-sm text-gray-500 mt-1">
+              Auto-fetches followers by default • Switch tabs to fetch following
+            </p>
           </div>
           {/* User count display */}
           {users.length > 0 && (
@@ -139,8 +185,9 @@ export const FollowersPanel: React.FC = () => {
               <div className="space-y-2">
                 <button
                   type="button"
-                  onClick={() => setActiveTab('followers')}
-                  className={`w-full py-3 px-4 text-sm font-semibold rounded-xl transition-all duration-200 ${
+                  onClick={() => handleTabSwitch('followers')}
+                  disabled={isLoading}
+                  className={`w-full py-3 px-4 text-sm font-semibold rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
                     activeTab === 'followers'
                       ? 'bg-purple-500 text-white shadow-lg transform scale-[1.02]'
                       : 'bg-white/60 text-gray-600 hover:bg-white/80 hover:text-purple-500'
@@ -149,12 +196,16 @@ export const FollowersPanel: React.FC = () => {
                   <div className="flex items-center justify-center space-x-2">
                     <UserMinus className="w-4 h-4" />
                     <span>Followers</span>
+                    {isLoading && activeTab === 'followers' && (
+                      <div className="animate-spin rounded-full h-3 w-3 border border-white border-t-transparent ml-1"></div>
+                    )}
                   </div>
                 </button>
                 <button
                   type="button"
-                  onClick={() => setActiveTab('following')}
-                  className={`w-full py-3 px-4 text-sm font-semibold rounded-xl transition-all duration-200 ${
+                  onClick={() => handleTabSwitch('following')}
+                  disabled={isLoading}
+                  className={`w-full py-3 px-4 text-sm font-semibold rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
                     activeTab === 'following'
                       ? 'bg-purple-500 text-white shadow-lg transform scale-[1.02]'
                       : 'bg-white/60 text-gray-600 hover:bg-white/80 hover:text-purple-500'
@@ -163,6 +214,9 @@ export const FollowersPanel: React.FC = () => {
                   <div className="flex items-center justify-center space-x-2">
                     <UserPlus className="w-4 h-4" />
                     <span>Following</span>
+                    {isLoading && activeTab === 'following' && (
+                      <div className="animate-spin rounded-full h-3 w-3 border border-white border-t-transparent ml-1"></div>
+                    )}
                   </div>
                 </button>
               </div>
@@ -187,9 +241,10 @@ export const FollowersPanel: React.FC = () => {
               <input
                 type="text"
                 value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                onChange={(e) => handleUsernameChange(e.target.value)}
+                onBlur={handleAutoFetch}
                 className="w-full px-5 py-4 border-2 border-gray-200/50 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white/70 backdrop-blur-sm transition-all duration-300 hover:bg-white/90 hover:border-indigo-500/30 text-sm placeholder-gray-400 shadow-sm focus:shadow-md"
-                placeholder="Enter username (without @)..."
+                placeholder="Enter username (without @) - Auto-fetches followers"
                 required
               />
             </div>
@@ -231,12 +286,12 @@ export const FollowersPanel: React.FC = () => {
                   {isLoading ? (
                     <div className="flex items-center justify-center space-x-2">
                       <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
-                      <span>Fetching...</span>
+                      <span>Fetching {activeTab}...</span>
                     </div>
                   ) : (
                     <div className="flex items-center justify-center space-x-2">
                       {activeTab === 'followers' ? <UserMinus className="w-4 h-4" /> : <UserPlus className="w-4 h-4" />}
-                      <span>Fetch</span>
+                      <span>Refresh {activeTab}</span>
                     </div>
                   )}
                 </button>
@@ -327,6 +382,29 @@ export const FollowersPanel: React.FC = () => {
               </p>
               <p className="text-xs text-orange-600">users</p>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Helpful Status Message - when no data */}
+      {!isLoading && !currentTaskId && users.length === 0 && (
+        <div className="bg-gradient-to-br from-blue-50/80 to-indigo-50/80 backdrop-blur-sm rounded-2xl border border-blue-100/50 p-6 text-center">
+          <div className="flex items-center justify-center space-x-3 mb-4">
+            <div className="p-3 bg-blue-100 rounded-xl">
+              <UserPlus className="w-6 h-6 text-blue-600" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900">Ready to Fetch</h3>
+          </div>
+          <div className="space-y-2 text-sm text-gray-600">
+            <p>
+              💡 <strong>Auto-fetch:</strong> Enter a username and it will automatically fetch followers
+            </p>
+            <p>
+              🔄 <strong>Switch tabs:</strong> Click "Following" tab to auto-fetch following list
+            </p>
+            <p>
+              🔄 <strong>Refresh:</strong> Use the "Refresh" button to update current data
+            </p>
           </div>
         </div>
       )}
