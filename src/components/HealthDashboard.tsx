@@ -239,7 +239,7 @@ export const HealthDashboard: React.FC = () => {
                         className="bg-white/60 backdrop-blur-sm border border-[#0fbcf9]/20 rounded-2xl p-4 text-center transform transition-all duration-300 hover:scale-105 hover:shadow-xl hover:bg-[#0fbcf9]/10 hover:border-[#0fbcf9]/40 cursor-pointer"
                         onClick={() => setSelectedMetric('healthy')}
                     >
-                            <div className={`text-2xl font-bold text-green-600 transition-all duration-500 ${animationKey ? 'animate-bounce' : ''}`}>
+                            <div className={`text-2xl font-bold text-green-600 transition-all duration-500 ${animationKey ? 'animate-pulse' : ''}`}>
                                 {healthData.data.details.healthy_services}
                             </div>
                             <div className="text-sm text-gray-600">Healthy</div>
