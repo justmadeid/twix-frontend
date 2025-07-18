@@ -71,6 +71,49 @@ export interface Tweet {
   reply_count: number;
   is_retweet: boolean;
   media_urls?: string[];
+  link?: string; // Link to the original tweet
+}
+
+// New timeline structure based on actual API response
+export interface TimelineTweet {
+  id: string;
+  user_id: string;
+  date: string;
+  tweets: string; // The tweet text content
+  screen_name: string;
+  name: string;
+  retweet: number;
+  replies: number;
+  link_media?: string;
+  likes: number;
+  link: string;
+  views: number;
+  quote: number;
+  engagement: number;
+  hashtags: string[];
+  mentions: string[];
+  source: string;
+}
+
+export interface TimelineMetadata {
+  username: string;
+  total_tweets: number;
+  analysis_period: string;
+  execution_time: number;
+  cached: boolean;
+}
+
+export interface MentionStats {
+  user_mention: string;
+  count: number;
+  percentage: number;
+}
+
+export interface TimelineResult {
+  timelines: TimelineTweet[];
+  hashtags: string[];
+  mentions: MentionStats[];
+  metadata: TimelineMetadata;
 }
 
 export interface TimelineData {

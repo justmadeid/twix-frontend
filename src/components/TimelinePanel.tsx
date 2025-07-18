@@ -1,16 +1,71 @@
 import React, { useState } from 'react';
 import { twitterAPI } from '../services/api';
-import { TimelineData, Tweet } from '../types/api';
+import { TimelineData, Tweet, TimelineResult } from '../types/api';
 import TaskMonitor from './TaskMonitor';
-import { MessageCircle, Heart, Repeat2, User } from 'lucide-react';
+import { MessageCircle, Heart, Repeat2, User, ExternalLink } from 'lucide-react';
 import { format } from 'date-fns';
 
 export const TimelinePanel: React.FC = () => {
   const [username, setUsername] = useState('');
-  const [tweetCount, setTweetCount] = useState(50);
+  const [tweetCount] = useState(50); // Fixed to 50 tweets
   const [currentTaskId, setCurrentTaskId] = useState<string | null>(null);
   const [timelineData, setTimelineData] = useState<TimelineData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Convert the new API response format to the expected TimelineData format
+  const convertTimelineResult = (result: TimelineResult): TimelineData => {
+    const { timelines, metadata } = result;
+    
+    // Ensure we have valid data
+    if (!timelines || !Array.isArray(timelines) || !metadata) {
+      throw new Error('Invalid timeline data structure');
+    }
+    
+    // Create a mock user object from the first tweet or metadata
+    const firstTweet = timelines[0];
+    const mockUser = {
+      id: firstTweet?.user_id || '0',
+      username: metadata.username,
+      display_name: firstTweet?.name || metadata.username,
+      bio: '',
+      followers_count: 0,
+      following_count: 0,
+      verified: false,
+      profile_image_url: '',
+      created_at: new Date().toISOString(),
+    };
+
+    // Convert timeline tweets to the expected Tweet format
+    const convertedTweets: Tweet[] = timelines.map(timeline => ({
+      id: timeline.id || '',
+      text: timeline.tweets || '',
+      author: {
+        id: timeline.user_id || '0',
+        username: timeline.screen_name || '',
+        display_name: timeline.name || 'Unknown User',
+        bio: '',
+        followers_count: 0,
+        following_count: 0,
+        verified: false,
+        profile_image_url: '', // API doesn't provide this
+        created_at: new Date().toISOString(),
+      },
+      created_at: timeline.date || new Date().toISOString(),
+      retweet_count: timeline.retweet || 0,
+      like_count: timeline.likes || 0,
+      reply_count: timeline.replies || 0,
+      is_retweet: false,
+      media_urls: timeline.link_media ? [timeline.link_media] : [],
+      link: timeline.link || '', // Include the tweet link
+    }));
+
+    return {
+      user: mockUser,
+      tweets: convertedTweets,
+      total_count: metadata.total_tweets || convertedTweets.length,
+      fetched_at: metadata.analysis_period || new Date().toISOString(),
+    };
+  };
 
   const handleFetchTimeline = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,7 +84,25 @@ export const TimelinePanel: React.FC = () => {
 
   const handleTaskComplete = (result: any) => {
     console.log('Timeline fetch completed:', result);
-    setTimelineData(result);
+    try {
+      // Check if result has the new structure
+      if (result && result.timelines && result.metadata) {
+        console.log('Converting new API format...');
+        const convertedData = convertTimelineResult(result);
+        setTimelineData(convertedData);
+      } else if (result && result.user && result.tweets) {
+        // Old format - use directly
+        console.log('Using legacy API format...');
+        setTimelineData(result);
+      } else {
+        console.error('Unknown result format:', result);
+        throw new Error('Invalid data format received');
+      }
+    } catch (error) {
+      console.error('Error processing timeline data:', error);
+      // Show a user-friendly error or try to handle gracefully
+      alert('Error processing timeline data. Please try again.');
+    }
     setCurrentTaskId(null);
     setIsLoading(false);
   };
@@ -49,174 +122,421 @@ export const TimelinePanel: React.FC = () => {
     return num.toString();
   };
 
-  const formatTweetText = (text: string) => {
-    if (text.length > 280) {
-      return text.substring(0, 280) + '...';
-    }
-    return text;
-  };
   return (
-    <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 p-8">
-      <div className="flex items-center justify-between mb-8">
-        <div className="flex items-center space-x-3">
-          <div className="p-2 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-100">
-            <MessageCircle className="w-5 h-5 text-blue-600" />
+    <div className="space-y-6">
+      {/* Header Container - Separate Bento Card */}
+      <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-200/50 p-6 hover:shadow-xl transition-all duration-300">
+        <div className="flex items-center space-x-4">
+          <div className="p-3 bg-gradient-to-br from-blue-500/10 to-blue-500/5 rounded-2xl border border-blue-500/20">
+            <MessageCircle className="w-6 h-6 text-blue-500" />
           </div>
           <div>
-            <h2 className="text-xl font-semibold text-gray-900">User Timeline</h2>
-            <p className="text-sm text-gray-500">Fetch recent tweets from any user</p>
+            <h2 className="text-2xl font-bold text-gray-900">User Timeline</h2>
+            <p className="text-sm text-gray-500 mt-1">Fetch recent tweets from any user</p>
+          </div>
+          {/* Timeline stats */}
+          {timelineData && (
+            <div className="ml-auto hidden sm:block">
+              <div className="px-3 py-1 bg-blue-500/10 text-blue-500 text-sm font-medium rounded-full">
+                {timelineData.tweets.length} tweet{timelineData.tweets.length !== 1 ? 's' : ''}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Enhanced Bento Grid Form Layout */}
+      <form onSubmit={handleFetchTimeline} className="mb-8">
+        <div className="grid grid-cols-12 gap-4">
+          {/* Username Input - Enhanced styling */}
+          <div className="col-span-12 lg:col-span-8 xl:col-span-9">
+            <div className="group relative overflow-hidden bg-gradient-to-br from-blue-500/10 backdrop-blur-lg rounded-2xl border border-blue-500/20 p-6 h-full hover:from-blue-500/10 hover:to-blue-500/15 hover:border-blue-500/30 hover:shadow-lg hover:scale-[1.01] transition-all duration-300">
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-500/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out"></div>
+
+              <div className="relative">
+                <div className="flex items-center space-x-3 mb-4">
+                  <div className="p-2 bg-blue-500/10 rounded-xl group-hover:bg-blue-500/20 group-hover:scale-110 transition-all duration-300">
+                    <User className="w-5 h-5 text-blue-500" />
+                  </div>
+                  <label className="text-sm font-bold text-gray-700 group-hover:text-blue-500 transition-colors duration-300">
+                    Username
+                  </label>
+                </div>
+                <input
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  className="w-full px-5 py-4 border-2 border-gray-200/50 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/70 backdrop-blur-sm transition-all duration-300 hover:bg-white/90 hover:border-blue-500/30 text-sm placeholder-gray-400 shadow-sm focus:shadow-md"
+                  placeholder="Enter username (without @)..."
+                  required
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Fetch Button - Enhanced with animation */}
+          <div className="col-span-12 lg:col-span-4 xl:col-span-3">
+            <div className="group relative overflow-hidden bg-white/70 backdrop-blur-lg rounded-2xl border border-gray-200/50 p-6 h-full hover:bg-white/90 hover:border-blue-500/20 hover:shadow-lg hover:scale-[1.01] transition-all duration-300">
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+
+              <div className="relative">
+                <div className="flex items-center space-x-3 mb-4">
+                  <div className="p-2 bg-blue-500/20 rounded-xl group-hover:bg-blue-500/30 group-hover:scale-110 transition-all duration-300">
+                    <MessageCircle className="w-5 h-5 text-blue-500" />
+                  </div>
+                  <label className="text-sm font-bold text-gray-700 group-hover:text-blue-500 transition-colors duration-300">
+                    Action
+                  </label>
+                </div>
+                <button
+                  type="submit"
+                  disabled={isLoading || !username.trim()}
+                  className="w-full px-5 py-4 bg-gradient-to-r from-blue-500 to-blue-500/90 text-white rounded-xl hover:from-blue-500/90 hover:to-blue-500 hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 text-sm font-bold shadow-lg backdrop-blur-sm border border-blue-500/20"
+                >
+                  {isLoading ? (
+                    <div className="flex items-center justify-center space-x-2">
+                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                      <span>Fetching...</span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-center space-x-2">
+                      <MessageCircle className="w-4 h-4" />
+                      <span>Fetch Timeline</span>
+                    </div>
+                  )}
+                </button>
+              </div>
+            </div>
           </div>
         </div>
-      </div>      <form onSubmit={handleFetchTimeline} className="space-y-6 mb-8">
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-3">
-            Username
-          </label>
-          <input
-            type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white/80 backdrop-blur-sm transition-all duration-200 hover:bg-white"
-            placeholder="Enter username (without @)"
-            required
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-3">
-            Number of Tweets
-          </label>
-          <select
-            value={tweetCount}
-            onChange={(e) => setTweetCount(parseInt(e.target.value))}
-            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white/80 backdrop-blur-sm transition-all duration-200 hover:bg-white"
-          >
-            <option value={10}>10 tweets</option>
-            <option value={25}>25 tweets</option>
-            <option value={50}>50 tweets</option>
-            <option value={100}>100 tweets</option>
-          </select>
-        </div>        <button
-          type="submit"
-          disabled={isLoading || !username.trim()}
-          className="w-full flex items-center justify-center space-x-2 px-6 py-3 text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl hover:from-blue-700 hover:to-indigo-700 disabled:from-gray-300 disabled:to-gray-400 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]"
-        >
-          {isLoading ? (
-            <>
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-              <span>Fetching Timeline...</span>
-            </>
-          ) : (
-            <>
-              <MessageCircle className="w-4 h-4" />
-              <span>Fetch Timeline</span>
-            </>
-          )}
-        </button>
       </form>
 
+      {/* Task Monitor Section */}
       {currentTaskId && (
-        <div className="mb-8 p-4 bg-blue-50/50 backdrop-blur-sm rounded-xl border border-blue-100">
+        <div className="mb-8 p-4 bg-blue-500/10 backdrop-blur-sm rounded-xl border border-blue-500/20">
           <TaskMonitor
             taskId={currentTaskId}
             onComplete={handleTaskComplete}
             onError={handleTaskError}
           />
         </div>
-      )}      {timelineData && (
+      )}
+
+      {/* Timeline Data Visualization - Enhanced Bento Cards */}
+      {timelineData && (
         <div className="space-y-6">
-          {/* User Info */}
-          <div className="flex items-center space-x-4 p-6 bg-white/60 backdrop-blur-sm rounded-xl border border-white/40">
-            <div className="flex-shrink-0">
-              {timelineData.user.profile_image_url ? (
-                <img
-                  src={timelineData.user.profile_image_url}
-                  alt={timelineData.user.display_name}
-                  className="w-16 h-16 rounded-full border-2 border-white shadow-sm"
-                />
-              ) : (
-                <div className="w-16 h-16 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center border-2 border-white shadow-sm">
-                  <User className="w-8 h-8 text-gray-500" />
+          {/* User Stats Cards - Separate Bento Grid */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {/* Fetched Tweets Card */}
+            <div className="group relative overflow-hidden bg-gradient-to-br from-emerald-50/80 to-teal-50/80 backdrop-blur-sm rounded-2xl border border-emerald-100/50 p-6 hover:shadow-lg hover:scale-105 transition-all duration-300">
+              <div className="absolute inset-0 bg-gradient-to-br from-emerald-100/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <div className="relative">
+                <div className="flex items-center space-x-3 mb-3">
+                  <div className="p-2 bg-emerald-100 rounded-xl group-hover:bg-emerald-200 transition-colors duration-300">
+                    <MessageCircle className="w-4 h-4 text-emerald-600" />
+                  </div>
+                  <h3 className="text-sm font-bold text-gray-700 group-hover:text-emerald-700 transition-colors duration-300">Fetched</h3>
                 </div>
-              )}
-            </div>
-            <div className="flex-1">
-              <div className="flex items-center space-x-2 mb-1">
-                <h3 className="font-semibold text-gray-900 text-lg">{timelineData.user.display_name}</h3>
-                {timelineData.user.verified && (
-                  <span className="inline-flex items-center px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
-                    Verified
-                  </span>
-                )}
+                <p className="text-2xl font-bold text-emerald-700 mb-1">{timelineData.tweets.length}</p>
+                <p className="text-xs text-emerald-600">tweets</p>
               </div>
-              <p className="text-gray-600 mb-2">@{timelineData.user.username}</p>
-              <div className="flex items-center space-x-4">
-                <span className="text-sm text-gray-500 bg-gray-50 px-3 py-1 rounded-md">
-                  {formatNumber(timelineData.user.followers_count)} followers
-                </span>
-                <span className="text-sm text-gray-500 bg-gray-50 px-3 py-1 rounded-md">
-                  {formatNumber(timelineData.user.following_count)} following
-                </span>
+            </div>
+
+            {/* Total Tweets Card */}
+            <div className="group relative overflow-hidden bg-gradient-to-br from-blue-50/80 to-indigo-50/80 backdrop-blur-sm rounded-2xl border border-blue-100/50 p-6 hover:shadow-lg hover:scale-105 transition-all duration-300">
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-100/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <div className="relative">
+                <div className="flex items-center space-x-3 mb-3">
+                  <div className="p-2 bg-blue-100 rounded-xl group-hover:bg-blue-200 transition-colors duration-300">
+                    <User className="w-4 h-4 text-blue-600" />
+                  </div>
+                  <h3 className="text-sm font-bold text-gray-700 group-hover:text-blue-700 transition-colors duration-300">Total</h3>
+                </div>
+                <p className="text-2xl font-bold text-blue-700 mb-1">{formatNumber(timelineData.total_count)}</p>
+                <p className="text-xs text-blue-600">tweets</p>
+              </div>
+            </div>
+
+            {/* Average Engagement Card */}
+            <div className="group relative overflow-hidden bg-gradient-to-br from-purple-50/80 to-pink-50/80 backdrop-blur-sm rounded-2xl border border-purple-100/50 p-6 hover:shadow-lg hover:scale-105 transition-all duration-300">
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-100/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <div className="relative">
+                <div className="flex items-center space-x-3 mb-3">
+                  <div className="p-2 bg-purple-100 rounded-xl group-hover:bg-purple-200 transition-colors duration-300">
+                    <Heart className="w-4 h-4 text-purple-600" />
+                  </div>
+                  <h3 className="text-sm font-bold text-gray-700 group-hover:text-purple-700 transition-colors duration-300">Avg Likes</h3>
+                </div>
+                <p className="text-2xl font-bold text-purple-700 mb-1">
+                  {timelineData.tweets.length > 0 
+                    ? formatNumber(Math.round(timelineData.tweets.reduce((sum, tweet) => sum + tweet.like_count, 0) / timelineData.tweets.length))
+                    : 0
+                  }
+                </p>
+                <p className="text-xs text-purple-600">per tweet</p>
+              </div>
+            </div>
+
+            {/* Fetch Date Card */}
+            <div className="group relative overflow-hidden bg-gradient-to-br from-orange-50/80 to-amber-50/80 backdrop-blur-sm rounded-2xl border border-orange-100/50 p-6 hover:shadow-lg hover:scale-105 transition-all duration-300">
+              <div className="absolute inset-0 bg-gradient-to-br from-orange-100/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <div className="relative">
+                <div className="flex items-center space-x-3 mb-3">
+                  <div className="p-2 bg-orange-100 rounded-xl group-hover:bg-orange-200 transition-colors duration-300">
+                    <Repeat2 className="w-4 h-4 text-orange-600" />
+                  </div>
+                  <h3 className="text-sm font-bold text-gray-700 group-hover:text-orange-700 transition-colors duration-300">Fetched</h3>
+                </div>
+                <p className="text-2xl font-bold text-orange-700 mb-1">{format(new Date(timelineData.fetched_at), 'MMM d')}</p>
+                <p className="text-xs text-orange-600">{format(new Date(timelineData.fetched_at), 'yyyy')}</p>
               </div>
             </div>
           </div>
 
-          {/* Timeline */}
-          <div className="space-y-4">
-            <div className="flex items-center space-x-2">
-              <div className="p-1.5 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg border border-blue-100">
-                <MessageCircle className="w-4 h-4 text-blue-600" />
+          {/* Data Visualizations - Enhanced cards with potential for hashtags/mentions */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Tweet Activity Visualization */}
+            <div className="bg-gradient-to-br from-slate-50/80 to-gray-50/80 backdrop-blur-sm rounded-2xl border border-slate-100/50 p-6 hover:shadow-lg transition-all duration-300">
+              <div className="flex items-center space-x-3 mb-6">
+                <div className="p-2 bg-slate-100 rounded-xl">
+                  <MessageCircle className="w-5 h-5 text-slate-600" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900">Tweet Activity</h3>
               </div>
-              <h3 className="font-semibold text-gray-900">Recent Tweets ({timelineData.tweets.length})</h3>
+              <div className="space-y-4">
+                {/* Engagement breakdown */}
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="text-center p-3 bg-white/60 rounded-xl">
+                    <p className="text-sm font-medium text-gray-600">Total Likes</p>
+                    <p className="text-xl font-bold text-red-600">
+                      {formatNumber(timelineData.tweets.reduce((sum, tweet) => sum + tweet.like_count, 0))}
+                    </p>
+                  </div>
+                  <div className="text-center p-3 bg-white/60 rounded-xl">
+                    <p className="text-sm font-medium text-gray-600">Total Retweets</p>
+                    <p className="text-xl font-bold text-green-600">
+                      {formatNumber(timelineData.tweets.reduce((sum, tweet) => sum + tweet.retweet_count, 0))}
+                    </p>
+                  </div>
+                  <div className="text-center p-3 bg-white/60 rounded-xl">
+                    <p className="text-sm font-medium text-gray-600">Total Replies</p>
+                    <p className="text-xl font-bold text-blue-600">
+                      {formatNumber(timelineData.tweets.reduce((sum, tweet) => sum + tweet.reply_count, 0))}
+                    </p>
+                  </div>
+                </div>
+                {/* Most engaged tweet */}
+                {timelineData.tweets.length > 0 && (
+                  <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-100">
+                    <p className="text-sm font-medium text-gray-700 mb-2">Most Engaged Tweet</p>
+                    <p className="text-xs text-gray-600 line-clamp-2">
+                      {timelineData.tweets.reduce((prev, current) => 
+                        (prev.like_count + prev.retweet_count) > (current.like_count + current.retweet_count) ? prev : current
+                      ).text}
+                    </p>
+                  </div>
+                )}
+              </div>
             </div>
-            <div className="max-h-96 overflow-y-auto custom-scrollbar space-y-4">
-              {timelineData.tweets.map((tweet: Tweet) => (
-                <div key={tweet.id} className="p-5 bg-white/60 backdrop-blur-sm rounded-xl border border-white/40 hover:bg-white/80 transition-all duration-200">
-                  <div className="flex items-start space-x-3">
-                    <div className="flex-shrink-0">
-                      {tweet.author.profile_image_url ? (
-                        <img
-                          src={tweet.author.profile_image_url}
-                          alt={tweet.author.display_name}
-                          className="w-10 h-10 rounded-full border border-white"
-                        />
-                      ) : (
-                        <div className="w-10 h-10 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center border border-white">
-                          <User className="w-5 h-5 text-gray-500" />
+
+            {/* Media & Links Visualization */}
+            <div className="bg-gradient-to-br from-violet-50/80 to-purple-50/80 backdrop-blur-sm rounded-2xl border border-violet-100/50 p-6 hover:shadow-lg transition-all duration-300">
+              <div className="flex items-center space-x-3 mb-6">
+                <div className="p-2 bg-violet-100 rounded-xl">
+                  <ExternalLink className="w-5 h-5 text-violet-600" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900">Content Analysis</h3>
+              </div>
+              <div className="space-y-4">
+                {/* Content stats */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="text-center p-3 bg-white/60 rounded-xl">
+                    <p className="text-sm font-medium text-gray-600">With Media</p>
+                    <p className="text-xl font-bold text-violet-600">
+                      {timelineData.tweets.filter(tweet => tweet.media_urls && tweet.media_urls.length > 0).length}
+                    </p>
+                  </div>
+                  <div className="text-center p-3 bg-white/60 rounded-xl">
+                    <p className="text-sm font-medium text-gray-600">With Links</p>
+                    <p className="text-xl font-bold text-indigo-600">
+                      {timelineData.tweets.filter(tweet => tweet.link && tweet.link.trim() !== '').length}
+                    </p>
+                  </div>
+                </div>
+                {/* Average text length */}
+                <div className="p-4 bg-gradient-to-r from-violet-50 to-purple-50 rounded-xl border border-violet-100">
+                  <p className="text-sm font-medium text-gray-700 mb-2">Average Tweet Length</p>
+                  <p className="text-2xl font-bold text-violet-600">
+                    {timelineData.tweets.length > 0 
+                      ? Math.round(timelineData.tweets.reduce((sum, tweet) => sum + tweet.text.length, 0) / timelineData.tweets.length)
+                      : 0
+                    } characters
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Timeline Tweets - Enhanced Bento Grid */}
+          <div className="bg-gradient-to-br from-slate-50/80 to-gray-50/80 backdrop-blur-sm rounded-2xl border border-slate-100/50 p-6 hover:shadow-lg transition-all duration-300">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center space-x-3">
+                <div className="p-2 bg-slate-100 rounded-xl">
+                  <MessageCircle className="w-5 h-5 text-slate-600" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900">Recent Tweets</h3>
+              </div>
+              <div className="text-sm text-gray-500">
+                @{timelineData.user.username}
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 max-h-[1000px] overflow-y-auto custom-scrollbar"
+                 style={{ gridAutoRows: 'auto' }}>
+              {timelineData.tweets.map((tweet: Tweet, index: number) => {
+                // Create bento grid variety with different card sizes
+                const getBentoSize = (index: number, total: number) => {
+                  // First card is always large if we have more than 2 tweets
+                  if (index === 0 && total > 2) {
+                    return "md:col-span-2 md:row-span-2";
+                  }
+                  // Every 5th card (starting from 4th) spans 2 columns
+                  if ((index - 3) % 5 === 0 && index > 2) {
+                    return "lg:col-span-2";
+                  }
+                  // Every 7th card spans 2 rows (but not if it's already spanning columns)
+                  if ((index - 6) % 7 === 0 && index > 5 && (index - 3) % 5 !== 0) {
+                    return "xl:row-span-2";
+                  }
+                  // Random medium cards for visual variety
+                  if (index === 2 && total > 6) {
+                    return "lg:col-span-2 xl:col-span-1";
+                  }
+                  // Occasional tall cards for tweets with media
+                  if (tweet.media_urls && tweet.media_urls.length > 0 && index % 8 === 0 && index > 0) {
+                    return "row-span-2";
+                  }
+                  return "";
+                };
+
+                const isLargeCard = index === 0 && timelineData.tweets.length > 2;
+                const bentoClass = getBentoSize(index, timelineData.tweets.length);
+                
+                return (
+                  <div 
+                    key={tweet.id} 
+                    className={`group relative overflow-hidden tweet-card p-6 bg-white/90 backdrop-blur-sm rounded-2xl border border-white/60 hover:bg-white/95 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 animate-fade-in-up ${bentoClass}`}
+                    style={{ animationDelay: `${index * 0.1}s`, minHeight: isLargeCard ? '500px' : '350px' }}
+                  >
+                    {/* Tweet Header */}
+                    <div className="flex items-start space-x-3 mb-4">
+                      <div className="flex-shrink-0">
+                        {tweet.author.profile_image_url ? (
+                          <img
+                            src={tweet.author.profile_image_url}
+                            alt={tweet.author.display_name}
+                            className={`rounded-2xl border-2 border-white shadow-sm group-hover:border-blue-300 transition-all duration-300 ${isLargeCard ? 'w-16 h-16' : 'w-12 h-12'}`}
+                          />
+                        ) : (
+                          <div className={`bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center border-2 border-white shadow-sm group-hover:border-blue-300 transition-all duration-300 ${isLargeCard ? 'w-16 h-16' : 'w-12 h-12'}`}>
+                            <User className={`text-gray-500 ${isLargeCard ? 'w-8 h-8' : 'w-6 h-6'}`} />
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center space-x-2 mb-1">
+                          <h4 className={`font-semibold text-gray-900 truncate group-hover:text-blue-600 transition-colors duration-300 ${isLargeCard ? 'text-base' : 'text-sm'}`}>
+                            {tweet.author.display_name}
+                          </h4>
+                          {tweet.author.username && (
+                            <span className={`text-gray-500 truncate group-hover:text-blue-500 transition-colors duration-300 ${isLargeCard ? 'text-sm' : 'text-xs'}`}>
+                              @{tweet.author.username}
+                            </span>
+                          )}
+                        </div>
+                        <span className={`text-gray-500 group-hover:text-blue-400 transition-colors duration-300 ${isLargeCard ? 'text-sm' : 'text-xs'}`}>
+                          {format(new Date(tweet.created_at), isLargeCard ? 'MMM d, yyyy • h:mm a' : 'MMM d • h:mm a')}
+                        </span>
+                      </div>
+                    </div>
+                    
+                    {/* Tweet Content */}
+                    <div className="mb-4">
+                      <p className={`text-gray-900 leading-relaxed whitespace-pre-wrap break-words group-hover:text-gray-800 transition-colors duration-300 ${isLargeCard ? 'text-base' : 'text-sm'}`}>
+                        {tweet.text}
+                      </p>
+                    </div>
+                    
+                    {/* Media Display */}
+                    {tweet.media_urls && tweet.media_urls.length > 0 && (
+                      <div className="mb-4 space-y-3">
+                        {tweet.media_urls.map((mediaUrl, mediaIndex) => {
+                          const isVideo = mediaUrl.includes('.mp4') || mediaUrl.includes('.mov') || mediaUrl.includes('video');
+                          return (
+                            <div key={mediaIndex} className="rounded-xl overflow-hidden border border-gray-200 shadow-sm bg-gray-50 group-hover:border-gray-300 transition-all duration-300">
+                              {isVideo ? (
+                                <video 
+                                  controls 
+                                  className={`w-full object-cover ${isLargeCard ? 'max-h-96' : 'max-h-64'}`}
+                                  poster={mediaUrl.replace(/\.(mp4|mov)$/, '.jpg')}
+                                >
+                                  <source src={mediaUrl} type="video/mp4" />
+                                  <div className="p-4 text-center text-gray-500 text-sm">
+                                    Your browser does not support video playback.
+                                  </div>
+                                </video>
+                              ) : (
+                                <img 
+                                  src={mediaUrl} 
+                                  alt="Tweet media" 
+                                  className={`w-full object-cover cursor-pointer hover:opacity-90 transition-opacity ${isLargeCard ? 'max-h-96' : 'max-h-64'}`}
+                                  onError={(e) => {
+                                    e.currentTarget.parentElement!.style.display = 'none';
+                                  }}
+                                  onClick={() => window.open(mediaUrl, '_blank')}
+                                />
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                    
+                    {/* Enhanced Tweet Stats */}
+                    <div className="flex items-center justify-between text-gray-500 pt-3 border-t border-gray-100 group-hover:border-gray-200 transition-colors duration-300">
+                      <div className={`flex items-center space-x-4 ${isLargeCard ? 'space-x-6' : ''}`}>
+                        <div className="flex items-center space-x-1 hover:text-blue-600 transition-colors cursor-pointer group/stat">
+                          <MessageCircle className={`${isLargeCard ? 'w-5 h-5' : 'w-4 h-4'} group-hover/stat:scale-110 transition-transform duration-200`} />
+                          <span className={`font-medium group-hover/stat:font-semibold transition-all duration-200 ${isLargeCard ? 'text-sm' : 'text-xs'}`}>{formatNumber(tweet.reply_count)}</span>
+                        </div>
+                        <div className="flex items-center space-x-1 hover:text-green-600 transition-colors cursor-pointer group/stat">
+                          <Repeat2 className={`${isLargeCard ? 'w-5 h-5' : 'w-4 h-4'} group-hover/stat:scale-110 transition-transform duration-200`} />
+                          <span className={`font-medium group-hover/stat:font-semibold transition-all duration-200 ${isLargeCard ? 'text-sm' : 'text-xs'}`}>{formatNumber(tweet.retweet_count)}</span>
+                        </div>
+                        <div className="flex items-center space-x-1 hover:text-red-600 transition-colors cursor-pointer group/stat">
+                          <Heart className={`${isLargeCard ? 'w-5 h-5' : 'w-4 h-4'} group-hover/stat:scale-110 transition-transform duration-200`} />
+                          <span className={`font-medium group-hover/stat:font-semibold transition-all duration-200 ${isLargeCard ? 'text-sm' : 'text-xs'}`}>{formatNumber(tweet.like_count)}</span>
+                        </div>
+                        {tweet.link && (
+                          <button
+                            onClick={() => window.open(tweet.link, '_blank')}
+                            className="flex items-center space-x-1 hover:text-blue-600 transition-colors cursor-pointer p-1 rounded group/stat"
+                            title="View original tweet"
+                          >
+                            <ExternalLink className={`${isLargeCard ? 'w-5 h-5' : 'w-4 h-4'} group-hover/stat:scale-110 transition-transform duration-200`} />
+                            {isLargeCard && <span className="text-sm font-medium group-hover/stat:font-semibold transition-all duration-200">View</span>}
+                          </button>
+                        )}
+                      </div>
+                      {tweet.created_at && (
+                        <div className={`text-gray-400 group-hover:text-gray-500 transition-colors duration-300 ${isLargeCard ? 'text-sm' : 'text-xs'}`}>
+                          {format(new Date(tweet.created_at), 'h:mm a')}
                         </div>
                       )}
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center space-x-2 mb-2">
-                        <h4 className="text-sm font-semibold text-gray-900">
-                          {tweet.author.display_name}
-                        </h4>
-                        <span className="text-sm text-gray-500">
-                          @{tweet.author.username}
-                        </span>
-                        <span className="text-sm text-gray-400">·</span>
-                        <span className="text-sm text-gray-500">
-                          {format(new Date(tweet.created_at), 'MMM d')}
-                        </span>
-                      </div>
-                      <p className="text-sm text-gray-900 mb-3 leading-relaxed">{formatTweetText(tweet.text)}</p>                      <div className="flex items-center space-x-6 text-gray-500">
-                        <div className="flex items-center space-x-1 bg-gray-50 px-2 py-1 rounded-md">
-                          <MessageCircle className="w-3.5 h-3.5" />
-                          <span className="text-xs font-medium">{formatNumber(tweet.reply_count)}</span>
-                        </div>
-                        <div className="flex items-center space-x-1 bg-gray-50 px-2 py-1 rounded-md">
-                          <Repeat2 className="w-3.5 h-3.5" />
-                          <span className="text-xs font-medium">{formatNumber(tweet.retweet_count)}</span>
-                        </div>
-                        <div className="flex items-center space-x-1 bg-gray-50 px-2 py-1 rounded-md">
-                          <Heart className="w-3.5 h-3.5" />
-                          <span className="text-xs font-medium">{formatNumber(tweet.like_count)}</span>
-                        </div>
-                      </div>
-                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </div>
