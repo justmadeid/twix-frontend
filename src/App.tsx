@@ -149,7 +149,7 @@ function App() {
                   </div>
                 </div>
                 <div>
-                  <h1 className="text-lg font-bold text-gray-900">Twitter Scraper</h1>
+                  <h1 className="text-lg font-bold text-gray-900">Twix</h1>
                   <p className="text-xs text-gray-500">
                     {menuItems.find((item) => item.id === activePanel)?.label || 'Dashboard'}
                   </p>
