@@ -557,7 +557,7 @@ export const HealthDashboard: React.FC = () => {
                 </div>
 
                 {/* Header 2 */}
-                <div className="mt-6 md:mt-10 lg:mt-14 bg-white/70 backdrop-blur-lg border border-white/20 rounded-3xl shadow-xl p-6">
+                <div className="mt-8 md:mt-12 lg:mt-16 bg-white/70 backdrop-blur-lg border border-white/20 rounded-3xl shadow-xl p-6">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-4">
                             <div className="p-3 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-2xl">
