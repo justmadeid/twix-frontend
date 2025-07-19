@@ -254,7 +254,7 @@ export const CredentialsPanel: React.FC = () => {
                         value={formData.credential_name}
                         onChange={(e) => setFormData(prev => ({ ...prev, credential_name: e.target.value }))}
                         className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 bg-white/80 backdrop-blur-sm transition-all duration-300 hover:bg-white text-sm placeholder-gray-400"
-                        placeholder="my_twitter_account"
+                        placeholder="Credential Name"
                       />
                     </div>
                   </div>
@@ -272,7 +272,7 @@ export const CredentialsPanel: React.FC = () => {
                         value={formData.username}
                         onChange={(e) => setFormData(prev => ({ ...prev, username: e.target.value }))}
                         className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 bg-white/80 backdrop-blur-sm transition-all duration-300 hover:bg-white text-sm placeholder-gray-400"
-                        placeholder="@username"
+                        placeholder="username without @"
                       />
                     </div>
                   </div>
