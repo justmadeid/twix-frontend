@@ -222,6 +222,138 @@ export const TimelinePanel: React.FC = () => {
         </div>
       )}
 
+      {/* Loading Skeleton for Timeline */}
+      {isLoading && currentTaskId && (
+        <div className="space-y-6">
+          {/* Stats Cards Skeleton */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {Array.from({ length: 4 }, (_, index) => (
+              <div key={index} className="bg-white/90 backdrop-blur-sm rounded-2xl border border-gray-200/50 p-6 animate-pulse">
+                <div className="flex items-center space-x-3 mb-3">
+                  <div className="p-2 bg-gray-200 rounded-xl">
+                    <div className="w-4 h-4 bg-gray-300 rounded"></div>
+                  </div>
+                  <div className="h-4 bg-gray-300 rounded w-16"></div>
+                </div>
+                <div className="h-7 bg-gray-300 rounded w-12 mb-1"></div>
+                <div className="h-3 bg-gray-200 rounded w-14"></div>
+              </div>
+            ))}
+          </div>
+
+          {/* Data Visualization Cards Skeleton */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="bg-white/90 backdrop-blur-sm rounded-2xl border border-gray-200/50 p-6 animate-pulse">
+              <div className="flex items-center space-x-3 mb-6">
+                <div className="p-2 bg-gray-200 rounded-xl">
+                  <div className="w-5 h-5 bg-gray-300 rounded"></div>
+                </div>
+                <div className="h-6 bg-gray-300 rounded w-32"></div>
+              </div>
+              <div className="space-y-4">
+                <div className="h-32 bg-gray-200 rounded-xl"></div>
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="text-center p-3 bg-gray-100 rounded-lg">
+                    <div className="h-5 bg-gray-300 rounded w-8 mx-auto mb-1"></div>
+                    <div className="h-3 bg-gray-200 rounded w-12 mx-auto"></div>
+                  </div>
+                  <div className="text-center p-3 bg-gray-100 rounded-lg">
+                    <div className="h-5 bg-gray-300 rounded w-8 mx-auto mb-1"></div>
+                    <div className="h-3 bg-gray-200 rounded w-12 mx-auto"></div>
+                  </div>
+                  <div className="text-center p-3 bg-gray-100 rounded-lg">
+                    <div className="h-5 bg-gray-300 rounded w-8 mx-auto mb-1"></div>
+                    <div className="h-3 bg-gray-200 rounded w-12 mx-auto"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white/90 backdrop-blur-sm rounded-2xl border border-gray-200/50 p-6 animate-pulse">
+              <div className="flex items-center space-x-3 mb-6">
+                <div className="p-2 bg-gray-200 rounded-xl">
+                  <div className="w-5 h-5 bg-gray-300 rounded"></div>
+                </div>
+                <div className="h-6 bg-gray-300 rounded w-40"></div>
+              </div>
+              <div className="space-y-3">
+                {Array.from({ length: 5 }, (_, i) => (
+                  <div key={i} className="flex justify-between items-center">
+                    <div className="h-4 bg-gray-300 rounded w-24"></div>
+                    <div className="h-4 bg-gray-200 rounded w-12"></div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Tweet Cards Skeleton */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 auto-rows-fr">
+            {Array.from({ length: tweetCount }, (_, index) => {
+              const isLargeSkeleton = index === 0 && tweetCount > 2;
+              const skeletonClass = isLargeSkeleton ? "md:col-span-2 md:row-span-2" : "";
+
+              return (
+                <div
+                  key={index}
+                  className={`bg-white/90 backdrop-blur-sm rounded-2xl border border-gray-200/50 p-6 animate-pulse ${skeletonClass}`}
+                >
+                  {/* Header skeleton */}
+                  <div className="flex items-center space-x-3 mb-4">
+                    <div className="w-10 h-10 bg-gray-300 rounded-full"></div>
+                    <div className="flex-1">
+                      <div className="h-4 bg-gray-300 rounded w-24 mb-1"></div>
+                      <div className="h-3 bg-gray-200 rounded w-16"></div>
+                    </div>
+                  </div>
+
+                  {/* Content skeleton */}
+                  <div className="space-y-3 mb-4">
+                    <div className="h-4 bg-gray-200 rounded"></div>
+                    <div className="h-4 bg-gray-200 rounded w-4/5"></div>
+                    {isLargeSkeleton && (
+                      <>
+                        <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                        <div className="h-4 bg-gray-200 rounded w-5/6"></div>
+                      </>
+                    )}
+                  </div>
+
+                  {/* Stats skeleton */}
+                  <div className={`grid gap-2 ${isLargeSkeleton ? 'grid-cols-4' : 'grid-cols-2'}`}>
+                    <div className="flex items-center space-x-1">
+                      <div className="w-4 h-4 bg-gray-200 rounded"></div>
+                      <div className="h-3 bg-gray-200 rounded w-6"></div>
+                    </div>
+                    <div className="flex items-center space-x-1">
+                      <div className="w-4 h-4 bg-gray-200 rounded"></div>
+                      <div className="h-3 bg-gray-200 rounded w-6"></div>
+                    </div>
+                    {isLargeSkeleton && (
+                      <>
+                        <div className="flex items-center space-x-1">
+                          <div className="w-4 h-4 bg-gray-200 rounded"></div>
+                          <div className="h-3 bg-gray-200 rounded w-6"></div>
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          <div className="w-4 h-4 bg-gray-200 rounded"></div>
+                          <div className="h-3 bg-gray-200 rounded w-6"></div>
+                        </div>
+                      </>
+                    )}
+                  </div>
+
+                  {/* Date skeleton */}
+                  <div className="mt-4 pt-3 border-t border-gray-200">
+                    <div className="h-3 bg-gray-200 rounded w-20"></div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {/* Timeline Data Visualization - Enhanced Bento Cards */}
       {timelineData && (
         <div className="space-y-6">

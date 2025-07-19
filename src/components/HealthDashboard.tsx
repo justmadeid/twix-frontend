@@ -131,10 +131,81 @@ export const HealthDashboard: React.FC = () => {
     if (loading && !healthData) {
         return (
             <div className="min-h-screen p-6">
-                <div className="max-w-7xl mx-auto">
-                    <div className="text-center py-12">
-                        <div className="animate-spin rounded-full h-12 w-12 border-2 border-blue-500 border-t-transparent mx-auto mb-4"></div>
-                        <p className="text-gray-600">Loading health data...</p>
+                <div className="max-w-7xl mx-auto space-y-6">
+                    {/* Header Skeleton */}
+                    <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-200/50 p-6 animate-pulse">
+                        <div className="flex items-center space-x-4">
+                            <div className="p-3 bg-gray-200 rounded-2xl">
+                                <div className="w-6 h-6 bg-gray-300 rounded"></div>
+                            </div>
+                            <div className="flex-1">
+                                <div className="h-7 bg-gray-300 rounded w-48 mb-2"></div>
+                                <div className="h-4 bg-gray-200 rounded w-64"></div>
+                            </div>
+                            <div className="hidden md:block">
+                                <div className="h-6 bg-gray-200 rounded-full w-24"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Main Stats Grid Skeleton */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        {Array.from({ length: 4 }, (_, index) => (
+                            <div key={index} className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-200/50 p-6 animate-pulse">
+                                <div className="flex items-center space-x-4 mb-4">
+                                    <div className="p-3 bg-gray-200 rounded-2xl">
+                                        <div className="w-6 h-6 bg-gray-300 rounded"></div>
+                                    </div>
+                                    <div className="flex-1">
+                                        <div className="h-5 bg-gray-300 rounded w-20 mb-2"></div>
+                                        <div className="h-3 bg-gray-200 rounded w-16"></div>
+                                    </div>
+                                </div>
+                                <div className="space-y-3">
+                                    <div className="h-8 bg-gray-300 rounded w-16"></div>
+                                    <div className="h-2 bg-gray-200 rounded-full"></div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Services Grid Skeleton */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {Array.from({ length: 6 }, (_, index) => (
+                            <div key={index} className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-200/50 p-6 animate-pulse">
+                                <div className="flex items-center justify-between mb-4">
+                                    <div className="flex items-center space-x-3">
+                                        <div className="p-2 bg-gray-200 rounded-xl">
+                                            <div className="w-5 h-5 bg-gray-300 rounded"></div>
+                                        </div>
+                                        <div className="h-5 bg-gray-300 rounded w-24"></div>
+                                    </div>
+                                    <div className="w-6 h-6 bg-gray-200 rounded-full"></div>
+                                </div>
+                                <div className="space-y-3">
+                                    <div className="flex justify-between">
+                                        <div className="h-4 bg-gray-200 rounded w-20"></div>
+                                        <div className="h-4 bg-gray-300 rounded w-12"></div>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <div className="h-4 bg-gray-200 rounded w-16"></div>
+                                        <div className="h-4 bg-gray-300 rounded w-16"></div>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <div className="h-4 bg-gray-200 rounded w-24"></div>
+                                        <div className="h-4 bg-gray-300 rounded w-20"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Refresh Button Skeleton */}
+                    <div className="text-center">
+                        <div className="inline-flex items-center space-x-2 px-6 py-3 bg-gray-200 rounded-xl animate-pulse">
+                            <div className="w-5 h-5 bg-gray-300 rounded"></div>
+                            <div className="h-4 bg-gray-300 rounded w-20"></div>
+                        </div>
                     </div>
                 </div>
             </div>

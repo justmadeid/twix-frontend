@@ -312,6 +312,103 @@ export const FollowersPanel: React.FC = () => {
         </div>
       )}
 
+      {/* Loading Skeleton for Followers/Following */}
+      {isLoading && currentTaskId && (
+        <div className="space-y-6">
+          {/* Stats Cards Skeleton */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {Array.from({ length: 4 }, (_, index) => (
+              <div key={index} className="bg-white/90 backdrop-blur-sm rounded-2xl border border-gray-200/50 p-6 animate-pulse">
+                <div className="flex items-center space-x-3 mb-3">
+                  <div className="p-2 bg-gray-200 rounded-xl">
+                    <div className="w-4 h-4 bg-gray-300 rounded"></div>
+                  </div>
+                  <div className="h-4 bg-gray-300 rounded w-16"></div>
+                </div>
+                <div className="h-7 bg-gray-300 rounded w-12 mb-1"></div>
+                <div className="h-3 bg-gray-200 rounded w-14"></div>
+              </div>
+            ))}
+          </div>
+
+          {/* User Cards Skeleton */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 auto-rows-fr">
+            {Array.from({ length: userCount }, (_, index) => {
+              const isLargeSkeleton = index === 0 && userCount > 2;
+              const skeletonClass = isLargeSkeleton ? "md:col-span-2 md:row-span-2" : "";
+
+              return (
+                <div
+                  key={index}
+                  className={`bg-white rounded-xl shadow-md border border-gray-200 animate-pulse ${skeletonClass}`}
+                >
+                  {/* Banner header skeleton */}
+                  <div className={`w-full bg-gray-300 relative ${isLargeSkeleton ? 'h-32' : 'h-24'}`}>
+                    {/* Avatar skeleton */}
+                    <div className="absolute inset-0 flex flex-col items-center justify-center">
+                      <div className={`bg-gray-400 rounded-full mb-2 ${isLargeSkeleton ? 'w-16 h-16' : 'w-12 h-12'}`}></div>
+                      <div className={`h-3 bg-gray-400 rounded w-20 mb-1 ${isLargeSkeleton ? 'h-4 w-24' : ''}`}></div>
+                      <div className={`h-2 bg-gray-400 rounded w-16 ${isLargeSkeleton ? 'h-3 w-20' : ''}`}></div>
+                    </div>
+                  </div>
+
+                  <div className={`${isLargeSkeleton ? 'p-6' : 'p-4'}`}>
+                    {/* Stats skeleton */}
+                    <div className={`grid gap-3 ${isLargeSkeleton ? 'grid-cols-4' : 'grid-cols-2'}`}>
+                      <div className="text-center">
+                        <div className={`bg-gray-300 rounded mb-1 ${isLargeSkeleton ? 'h-5' : 'h-4'}`}></div>
+                        <div className="h-3 bg-gray-200 rounded"></div>
+                      </div>
+                      <div className="text-center">
+                        <div className={`bg-gray-300 rounded mb-1 ${isLargeSkeleton ? 'h-5' : 'h-4'}`}></div>
+                        <div className="h-3 bg-gray-200 rounded"></div>
+                      </div>
+                      {isLargeSkeleton && (
+                        <>
+                          <div className="text-center">
+                            <div className="h-5 bg-gray-300 rounded mb-1"></div>
+                            <div className="h-3 bg-gray-200 rounded"></div>
+                          </div>
+                          <div className="text-center">
+                            <div className="h-5 bg-gray-300 rounded mb-1"></div>
+                            <div className="h-3 bg-gray-200 rounded"></div>
+                          </div>
+                        </>
+                      )}
+                    </div>
+
+                    {/* Bio skeleton for large cards */}
+                    {isLargeSkeleton && (
+                      <div className="mt-4 p-3 bg-gray-100 rounded-lg">
+                        <div className="space-y-2">
+                          <div className="h-3 bg-gray-200 rounded"></div>
+                          <div className="h-3 bg-gray-200 rounded w-4/5"></div>
+                          <div className="h-3 bg-gray-200 rounded w-3/4"></div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Additional skeleton elements for large cards */}
+                    {isLargeSkeleton && (
+                      <div className="mt-4 space-y-2">
+                        <div className="flex justify-between">
+                          <div className="h-3 bg-gray-200 rounded w-16"></div>
+                          <div className="h-3 bg-gray-200 rounded w-12"></div>
+                        </div>
+                        <div className="flex space-x-2">
+                          <div className="h-4 bg-gray-200 rounded-full w-12"></div>
+                          <div className="h-4 bg-gray-200 rounded-full w-16"></div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {/* Users Stats Cards - when data is available */}
       {users.length > 0 && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
