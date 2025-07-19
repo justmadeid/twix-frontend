@@ -180,7 +180,7 @@ function App() {
           <div className="flex gap-6">
             {/* Sidebar Desktop */}
             <aside className={`hidden lg:block flex-shrink-0 transition-all duration-300 ${sidebarExpanded ? 'w-64' : 'w-20'}`}>
-              <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-gray-200/50 shadow-lg p-4 sticky top-24">
+              <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-gray-200/50 shadow-lg p-4 sticky top-[9rem]">
                 <nav className="space-y-3">
                   {/* Toggle Button - Styled like menuItems */}
                   <div className="relative group">
@@ -238,7 +238,7 @@ function App() {
                     <div className="flex items-center space-x-3">
                       <div className={`w-3 h-3 rounded-full ${isLoggedIn ? 'bg-green-500' : 'bg-gray-400'}`}></div>
                       <span className="text-sm text-gray-600">
-                        {isLoggedIn ? 'Connected' : 'Disconnected'}
+                        {isLoggedIn ? 'Authorized' : 'Unauthorized'}
                       </span>
                     </div>
                   </div>
@@ -309,7 +309,7 @@ function App() {
                           className={`w-3 h-3 rounded-full ${isLoggedIn ? 'bg-green-500' : 'bg-gray-400'}`}
                         ></div>
                         <span className="text-sm text-gray-600">
-                          {isLoggedIn ? 'Connected' : 'Disconnected'}
+                          {isLoggedIn ? 'Authorized' : 'Unauthorized'}
                         </span>
                       </div>
                     </div>
