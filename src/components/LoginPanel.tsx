@@ -7,9 +7,14 @@ import { LogIn, User } from 'lucide-react';
 interface LoginPanelProps {
   credentials: TwitterSettings[];
   onLoginSuccess?: () => void;
+  isLoadingCredentials?: boolean; // Add loading state prop
 }
 
-export const LoginPanel: React.FC<LoginPanelProps> = ({ credentials, onLoginSuccess }) => {
+export const LoginPanel: React.FC<LoginPanelProps> = ({ 
+  credentials, 
+  onLoginSuccess, 
+  isLoadingCredentials = false 
+}) => {
   const [selectedCredential, setSelectedCredential] = useState('');
   const [currentTaskId, setCurrentTaskId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -52,7 +57,18 @@ export const LoginPanel: React.FC<LoginPanelProps> = ({ credentials, onLoginSucc
             <p className="text-sm text-gray-500">Authenticate with your Twitter credentials</p>
           </div>
         </div>
-      </div>      {credentials.length === 0 ? (
+      </div>      {isLoadingCredentials ? (
+        <div className="space-y-6">
+          {/* Credentials Selection Skeleton */}
+          <div>
+            <div className="h-5 bg-gray-300 rounded w-32 mb-3 animate-pulse"></div>
+            <div className="w-full h-12 bg-gray-200 rounded-xl animate-pulse"></div>
+          </div>
+
+          {/* Login Button Skeleton */}
+          <div className="w-full h-12 bg-gray-300 rounded-xl animate-pulse"></div>
+        </div>
+      ) : credentials.length === 0 ? (
         <div className="text-center py-12">
           <div className="mx-auto w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mb-4">
             <User className="w-8 h-8 text-gray-400" />

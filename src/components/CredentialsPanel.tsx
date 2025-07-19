@@ -336,13 +336,65 @@ export const CredentialsPanel: React.FC = () => {
             </div>
           </button>
         </div>
-      )}
-
-      {/* Credentials List - Bento Grid */}
+      )}      {/* Credentials List - Bento Grid */}
       {isLoading ? (
-        <div className="bg-white/90 backdrop-blur-sm rounded-2xl border border-gray-200/50 p-12 text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-2 border-cyan-500 border-t-transparent mx-auto mb-4"></div>
-          <p className="text-gray-500">Loading credentials...</p>
+        <div className="space-y-6">
+          {/* Loading Header Skeleton */}
+          <div className="bg-gradient-to-br from-slate-50/80 to-gray-50/80 backdrop-blur-sm rounded-2xl border border-slate-100/50 p-6 animate-pulse">
+            <div className="flex items-center space-x-3 mb-6">
+              <div className="p-2 bg-gray-200 rounded-xl">
+                <div className="w-5 h-5 bg-gray-300 rounded"></div>
+              </div>
+              <div className="h-6 bg-gray-300 rounded w-48"></div>
+            </div>
+          </div>
+
+          {/* Credentials Cards Skeleton */}
+          <div className="bg-gradient-to-br from-slate-50/80 to-gray-50/80 backdrop-blur-sm rounded-2xl border border-slate-100/50 p-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              {Array.from({ length: 3 }, (_, index) => (
+                <div 
+                  key={index} 
+                  className="bg-white/90 backdrop-blur-sm rounded-2xl border border-white/60 p-6 animate-pulse"
+                  style={{ animationDelay: `${index * 0.1}s` }}
+                >
+                  {/* Credential Header Skeleton */}
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex items-center space-x-3">
+                      <div className="p-2 bg-gray-200 rounded-xl">
+                        <div className="w-5 h-5 bg-gray-300 rounded"></div>
+                      </div>
+                      <div>
+                        <div className="h-5 bg-gray-300 rounded w-32 mb-1"></div>
+                        <div className="h-4 bg-gray-200 rounded w-24"></div>
+                      </div>
+                    </div>
+                    
+                    {/* Action Buttons Skeleton */}
+                    <div className="flex items-center space-x-1">
+                      <div className="p-2 bg-gray-200 rounded-lg">
+                        <div className="w-4 h-4 bg-gray-300 rounded"></div>
+                      </div>
+                      <div className="p-2 bg-gray-200 rounded-lg">
+                        <div className="w-4 h-4 bg-gray-300 rounded"></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Login Button Skeleton */}
+                  <div className="w-full h-12 bg-gray-300 rounded-xl mb-4"></div>
+
+                  {/* Credential Info Skeleton */}
+                  <div className="pt-4 border-t border-gray-100">
+                    <div className="flex items-center justify-between">
+                      <div className="h-3 bg-gray-200 rounded w-20"></div>
+                      <div className="h-3 bg-gray-200 rounded w-20"></div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       ) : credentials.length === 0 ? (
         <div className="bg-gradient-to-br from-slate-50/80 to-gray-50/80 backdrop-blur-sm rounded-2xl border border-slate-100/50 p-12 text-center">

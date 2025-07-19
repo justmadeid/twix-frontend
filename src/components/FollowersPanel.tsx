@@ -483,29 +483,6 @@ export const FollowersPanel: React.FC = () => {
         </div>
       )}
 
-      {/* Helpful Status Message - when no data */}
-      {!isLoading && !currentTaskId && users.length === 0 && (
-        <div className="bg-gradient-to-br from-blue-50/80 to-indigo-50/80 backdrop-blur-sm rounded-2xl border border-blue-100/50 p-6 text-center">
-          <div className="flex items-center justify-center space-x-3 mb-4">
-            <div className="p-3 bg-blue-100 rounded-xl">
-              <UserPlus className="w-6 h-6 text-blue-600" />
-            </div>
-            <h3 className="text-lg font-semibold text-gray-900">Ready to Fetch</h3>
-          </div>
-          <div className="space-y-2 text-sm text-gray-600">
-            <p>
-              💡 <strong>Auto-fetch:</strong> Enter a username and it will automatically fetch followers
-            </p>
-            <p>
-              🔄 <strong>Switch tabs:</strong> Click "Following" tab to auto-fetch following list
-            </p>
-            <p>
-              🔄 <strong>Refresh:</strong> Use the "Refresh" button to update current data
-            </p>
-          </div>
-        </div>
-      )}
-
       {/* Users Bento Grid - Enhanced Display */}
       {users.length > 0 && (
         <div className="bg-gradient-to-br from-slate-50/80 to-gray-50/80 backdrop-blur-sm rounded-2xl border border-slate-100/50 p-6 hover:shadow-lg transition-all duration-300">

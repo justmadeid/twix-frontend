@@ -27,17 +27,20 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activePanel, setActivePanel] = useState('home');
+  const [isLoadingCredentials, setIsLoadingCredentials] = useState(false);
 
   useEffect(() => {
     fetchCredentials();
   }, []);
-
   const fetchCredentials = async () => {
     try {
+      setIsLoadingCredentials(true);
       const response = await twitterAPI.getCredentials();
       setCredentials(response.data);
     } catch (error) {
       console.error('Error fetching credentials:', error);
+    } finally {
+      setIsLoadingCredentials(false);
     }
   };
 
@@ -58,9 +61,8 @@ function App() {
   const renderActivePanel = () => {
     switch (activePanel) {
       case 'credentials':
-        return <CredentialsPanel />;
-      case 'login':
-        return <LoginPanel credentials={credentials} onLoginSuccess={handleLoginSuccess} />;
+        return <CredentialsPanel />;      case 'login':
+        return <LoginPanel credentials={credentials} onLoginSuccess={handleLoginSuccess} isLoadingCredentials={isLoadingCredentials} />;
       case 'search':
         return <UserSearchPanel />;
       case 'timeline':
