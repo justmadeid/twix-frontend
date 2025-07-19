@@ -71,9 +71,10 @@ export const StatusPanel: React.FC = () => {
 
   const formatTime = (dateString: string) => {
     return new Date(dateString).toLocaleTimeString();
-  };
-  return (
-    <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 p-8">
+  };  return (
+    <div className="min-h-screen p-6">
+      <div className="max-w-7xl mx-auto space-y-6">
+        <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 p-8">
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center space-x-3">
           <div className="p-2 bg-gradient-to-br from-orange-50 to-red-50 rounded-xl border border-orange-100">
@@ -164,11 +165,12 @@ export const StatusPanel: React.FC = () => {
               <div className="p-1 bg-blue-100 rounded-md">
                 <Server className="w-4 h-4 text-blue-600" />
               </div>
-              <span className="font-medium">Open Celery Monitor</span>
-            </button>
+              <span className="font-medium">Open Celery Monitor</span>            </button>
           </div>
         </div>
+        </div>
       </div>
+    </div>
     </div>
   );
 };

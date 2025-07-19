@@ -198,9 +198,9 @@ export const CredentialsPanel: React.FC = () => {
     console.error('Login failed:', error);
     setCurrentTaskId(null);
     setLoginLoading(null);
-  };
-  return (
-    <div className="max-w-7xl mx-auto space-y-6">
+  };  return (
+    <div className="min-h-screen p-6">
+      <div className="max-w-7xl mx-auto space-y-6">
       {/* Header Container - Bento Card */}
       <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-200/50 p-6 hover:shadow-xl transition-all duration-300">
         <div className="flex items-center justify-between">
@@ -457,14 +457,14 @@ export const CredentialsPanel: React.FC = () => {
         </div>
       )}
 
-      {/* Delete Confirmation Modal */}
-      {deleteModal.show && deleteModal.credential && (
+      {/* Delete Confirmation Modal */}      {deleteModal.show && deleteModal.credential && (
         <DeleteConfirmationModal
           credential={deleteModal.credential}
           onConfirm={confirmDelete}
           onCancel={cancelDelete}
         />
       )}
+      </div>
     </div>
   );
 };
