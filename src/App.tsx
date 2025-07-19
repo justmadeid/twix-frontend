@@ -176,24 +176,35 @@ function App() {
             </div>
           </div>
         </header>        <div className="flex gap-6">
-          {/* Sidebar Desktop */}
-          <aside className={`hidden lg:block flex-shrink-0 transition-all duration-300 ${sidebarExpanded ? 'w-64' : 'w-20'}`}>
+          {/* Sidebar Desktop */}          <aside className={`hidden lg:block flex-shrink-0 transition-all duration-300 ${sidebarExpanded ? 'w-64' : 'w-20'}`}>
             <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-gray-200/50 shadow-lg p-4 sticky top-24">
-              {/* Toggle Button */}
-              <div className="flex justify-end mb-4">
-                <button
-                  onClick={() => setSidebarExpanded(!sidebarExpanded)}
-                  className="p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
-                >
-                  {sidebarExpanded ? (
-                    <ChevronLeft className="w-4 h-4 text-gray-600" />
-                  ) : (
-                    <ChevronRight className="w-4 h-4 text-gray-600" />
-                  )}
-                </button>
-              </div>
-
               <nav className="space-y-3">
+                {/* Toggle Button - Styled like menuItems */}
+                <div className="relative group">
+                  <button
+                    onClick={() => setSidebarExpanded(!sidebarExpanded)}
+                    className={`w-full flex items-center ${sidebarExpanded ? 'space-x-3 px-4 py-3' : 'justify-center p-3'} rounded-xl transition-all duration-200 text-gray-700 hover:bg-gray-100/70 hover:scale-[1.01] hover:backdrop-blur-sm`}
+                  >
+                    {sidebarExpanded ? (
+                      <ChevronLeft className="w-5 h-5 text-gray-500" />
+                    ) : (
+                      <ChevronRight className="w-5 h-5 text-gray-500" />
+                    )}
+                    {sidebarExpanded && (
+                      <span className="text-sm font-medium">Collapse</span>
+                    )}
+                  </button>
+
+                  {/* Tooltip for collapsed state */}
+                  {!sidebarExpanded && (
+                    <div className="absolute left-full ml-2 top-1/2 transform -translate-y-1/2 bg-gray-900 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
+                      Expand
+                    </div>
+                  )}
+                </div>
+
+                {/* Separator */}
+                <div className="border-t border-gray-200/50"></div>
                 {menuItems.map((item) => (
                   <div key={item.id} className="relative group">
                     <button
