@@ -60,6 +60,7 @@ function App() {
   const handleLoginSuccess = () => {
     setIsLoggedIn(true);
   };
+  
   const menuItems: MenuItem[] = [
     { id: 'home', label: 'Dashboard', icon: Home },
     { id: 'credentials', label: 'Credentials & Login', icon: Key },
@@ -79,7 +80,8 @@ function App() {
       case 'followers':
         return <FollowersPanel />;
       case 'status':
-        return <StatusPanel />; default:
+        return <HealthDashboard />; 
+      default:
         return <HealthDashboard />;
     }
   };
