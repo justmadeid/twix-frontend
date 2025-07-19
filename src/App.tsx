@@ -177,7 +177,7 @@ function App() {
           </div>
         </header>        <div className="flex gap-6">
           {/* Sidebar Desktop */}
-          <aside className={`hidden lg:block flex-shrink-0 transition-all duration-300 ${sidebarExpanded ? 'w-64' : 'w-16'}`}>
+          <aside className={`hidden lg:block flex-shrink-0 transition-all duration-300 ${sidebarExpanded ? 'w-64' : 'w-20'}`}>
             <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-gray-200/50 shadow-lg p-4 sticky top-24">
               {/* Toggle Button */}
               <div className="flex justify-end mb-4">
@@ -256,7 +256,7 @@ function App() {
                         </div>
                       </div>
                       <div>
-                        <h1 className="text-lg font-bold text-gray-900">Twitter Scraper</h1>
+                        <h1 className="text-lg font-bold text-gray-900">Twix</h1>
                         <p className="text-xs text-gray-500">Dashboard</p>
                       </div>
                     </div>
