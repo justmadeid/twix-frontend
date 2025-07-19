@@ -113,14 +113,15 @@ export const UserSearchPanel: React.FC = () => {
     }
     return num.toString();
   };  return (
-    <>
-      {showProfile && selectedUser ? (
-        <UserProfilePage 
-          user={selectedUser} 
-          onBack={handleBackToSearch}
-        />
-      ) : (
-        <div className="space-y-6">
+    <div className="min-h-screen p-6">
+      <div className="max-w-7xl mx-auto space-y-6">
+        {showProfile && selectedUser ? (
+          <UserProfilePage 
+            user={selectedUser} 
+            onBack={handleBackToSearch}
+          />
+        ) : (
+          <div className="space-y-6">
       {/* Header Container - Separate Bento Card */}
       <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-200/50 p-6 hover:shadow-xl transition-all duration-300">
         <div className="flex items-center space-x-4">
@@ -503,21 +504,19 @@ export const UserSearchPanel: React.FC = () => {
                     </div>
                   )}
                 </div>                {/* Hover-only View Profile Button */}
-                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-sm">
-                  <button 
+                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-sm">                  <button 
                     onClick={() => handleViewProfile(user)}
                     className="px-6 py-3 bg-white text-gray-900 rounded-lg font-medium text-sm hover:bg-gray-50 transition-all duration-200 transform hover:scale-105 shadow-lg"
-                  >
-                    View Profile
-                  </button>
+                  >                    View Profile                  </button>
                 </div>
               </div>
-              );
-            })}          </div>
+            );})}
+          </div>
         </div>
       )}
-        </div>
-      )}
-    </>
+          </div>
+        )}
+      </div>
+    </div>
   );
 };

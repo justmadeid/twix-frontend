@@ -75,17 +75,19 @@ export const StatusPanel: React.FC = () => {
     <div className="min-h-screen p-6">
       <div className="max-w-7xl mx-auto space-y-6">
         <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 p-8">
-      <div className="flex items-center justify-between mb-8">
-        <div className="flex items-center space-x-3">
-          <div className="p-2 bg-gradient-to-br from-orange-50 to-red-50 rounded-xl border border-orange-100">
-            <Activity className="w-5 h-5 text-orange-600" />
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center space-x-3">
+              <div className="p-2 bg-gradient-to-br from-orange-50 to-red-50 rounded-xl border border-orange-100">
+                <Activity className="w-5 h-5 text-orange-600" />
+              </div>
+              <div>
+                <h2 className="text-xl font-semibold text-gray-900">System Status</h2>
+                <p className="text-sm text-gray-500">Monitor API health and task activity</p>
+              </div>
+            </div>
           </div>
-          <div>
-            <h2 className="text-xl font-semibold text-gray-900">System Status</h2>
-            <p className="text-sm text-gray-500">Monitor API health and task activity</p>
-          </div>
-        </div>
-      </div>      <div className="space-y-6">
+
+          <div className="space-y-6">
         {/* API Status */}
         <div className="flex items-center justify-between p-6 bg-white/60 backdrop-blur-sm rounded-xl border border-white/40">
           <div className="flex items-center space-x-4">
@@ -160,17 +162,16 @@ export const StatusPanel: React.FC = () => {
             </button>
             <button
               onClick={() => window.open('http://localhost:5555', '_blank')}
-              className="w-full flex items-center space-x-3 px-4 py-3 text-sm text-left text-gray-700 bg-white/60 backdrop-blur-sm hover:bg-white/80 rounded-xl border border-white/40 transition-all duration-200 transform hover:scale-[1.02]"
-            >
+              className="w-full flex items-center space-x-3 px-4 py-3 text-sm text-left text-gray-700 bg-white/60 backdrop-blur-sm hover:bg-white/80 rounded-xl border border-white/40 transition-all duration-200 transform hover:scale-[1.02]"            >
               <div className="p-1 bg-blue-100 rounded-md">
                 <Server className="w-4 h-4 text-blue-600" />
               </div>
               <span className="font-medium">Open Celery Monitor</span>            </button>
           </div>
         </div>
+          </div>
         </div>
       </div>
-    </div>
     </div>
   );
 };
