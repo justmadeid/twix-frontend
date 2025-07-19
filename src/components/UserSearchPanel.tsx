@@ -352,8 +352,11 @@ export const UserSearchPanel: React.FC = () => {
                   return "lg:col-span-2 xl:col-span-1";
                 }
                 return "";
-              }; const isLargeCard = index === 0 && searchResults.length > 2;
-              const bentoClass = getBentoSize(index, searchResults.length); return (<div
+              };              const isLargeCard = index === 0 && searchResults.length > 2;
+              const bentoClass = getBentoSize(index, searchResults.length);
+              
+              // Only show ads on cards with xl:row-span-2 class (tall cards)
+              const showAd = bentoClass.includes('xl:row-span-2');return (<div
                 key={user.id}
                 className={`group relative overflow-hidden bg-white rounded-xl shadow-md border border-gray-200 transition-all duration-300 hover:shadow-xl hover:scale-[1.02] hover:-translate-y-1 ${bentoClass}`}
               >
@@ -501,6 +504,16 @@ export const UserSearchPanel: React.FC = () => {
                           Likes per Tweet Ratio
                         </div>
                       </div>
+                    </div>
+                  )}                  {/* Advertisement for tall cards (xl:row-span-2) */}
+                  {showAd && (
+                    <div className="flex justify-center">
+                      <img 
+                        src="/ads.png" 
+                        alt="Advertisement" 
+                        className="max-w-full h-auto rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 cursor-pointer"
+                        style={{ maxHeight: '100%' }}
+                      />
                     </div>
                   )}
                 </div>                {/* Hover-only View Profile Button */}
