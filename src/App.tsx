@@ -1,19 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { TwitterSettings } from './types/api';
 import { twitterAPI } from './services/api';
 import { CredentialsPanel } from './components/CredentialsPanel';
 import { UserSearchPanel } from './components/UserSearchPanel';
 import { TimelinePanel } from './components/TimelinePanel';
 import { FollowersPanel } from './components/FollowersPanel';
-import { StatusPanel } from './components/StatusPanel';
 import { HealthDashboard } from './components/HealthDashboard';
+import BentoGridPage from './components/BentoGridPage';
 import {
   Twitter,
   Settings,
   Menu,
   X,
   Key,
-  LogIn,
   Search,
   Clock,
   Users,
@@ -38,28 +36,18 @@ type MenuItem = {
 };
 
 function App() {
-  const [credentials, setCredentials] = useState<TwitterSettings[]>([]);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarExpanded, setSidebarExpanded] = useState(false);
   const [activePanel, setActivePanel] = useState<PanelId>('home');
 
   useEffect(() => {
-    fetchCredentials();
-  }, []);
-
-  const fetchCredentials = async () => {
-    try {
-      const response = await twitterAPI.getCredentials();
-      setCredentials(response.data as TwitterSettings[]);
-    } catch (error) {
-      console.error('Error fetching credentials:', error);
+    // Check authentication status
+    const apiKey = twitterAPI.getApiKey();
+    if (apiKey) {
+      setIsLoggedIn(true);
     }
-  };
-
-  const handleLoginSuccess = () => {
-    setIsLoggedIn(true);
-  };
+  }, []);
   
   const menuItems: MenuItem[] = [
     { id: 'home', label: 'Dashboard', icon: Home },
@@ -71,6 +59,8 @@ function App() {
   ];
   const renderActivePanel = () => {
     switch (activePanel) {
+      case 'home':
+        return <BentoGridPage onNavigate={setActivePanel} />;
       case 'credentials':
         return <CredentialsPanel />;
       case 'search':
@@ -82,7 +72,7 @@ function App() {
       case 'status':
         return <HealthDashboard />; 
       default:
-        return <HealthDashboard />;
+        return <BentoGridPage onNavigate={setActivePanel} />;
     }
   };
   return (
