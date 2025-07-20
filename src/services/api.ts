@@ -3,6 +3,9 @@ import {
   TwitterCredentials,
   TwitterSettings,
   TaskStatus,
+  TasksOverview,
+  ActiveTasks,
+  TasksHistory,
   SearchUsersRequest,
   LoginRequest,
   ApiResponse,
@@ -136,6 +139,28 @@ class TwitterScraperAPI {
   async healthCheck(): Promise<HealthResponse> {
     const response: AxiosResponse<HealthResponse> = await this.api.get(
       '/twitter/health'
+    );
+    return response.data;
+  }
+
+  // Task Management
+  async getTasksOverview(): Promise<ApiResponse<TasksOverview>> {
+    const response: AxiosResponse<ApiResponse<TasksOverview>> = await this.api.get(
+      '/twitter/tasks/'
+    );
+    return response.data;
+  }
+
+  async getActiveTasks(): Promise<ApiResponse<ActiveTasks>> {
+    const response: AxiosResponse<ApiResponse<ActiveTasks>> = await this.api.get(
+      '/twitter/tasks/active'
+    );
+    return response.data;
+  }
+
+  async getTasksHistory(): Promise<ApiResponse<TasksHistory>> {
+    const response: AxiosResponse<ApiResponse<TasksHistory>> = await this.api.get(
+      '/twitter/tasks/history'
     );
     return response.data;
   }

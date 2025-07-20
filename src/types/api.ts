@@ -23,6 +23,73 @@ export interface TaskStatus {
   updated_at: string;
 }
 
+// Task Overview Types
+export interface TasksOverview {
+  active_tasks: TaskStatus[];
+  scheduled_tasks: TaskStatus[];
+  registered_tasks: string[];
+  worker_stats: {
+    [key: string]: {
+      pool: {
+        implementation: string;
+        'max-concurrency': number;
+        processes: number[];
+        'max-tasks-per-child': number;
+        'put-guarded-by-semaphore': boolean;
+        timeouts: number[];
+        writes: {
+          total: number;
+          avg: string;
+          all: string;
+          raw: string;
+          strategy: string;
+          inqueues: {
+            total: number;
+            active: number;
+          };
+        };
+      };
+      total: any;
+      rusage: {
+        utime: number;
+        stime: number;
+        maxrss: number;
+        ixrss: number;
+        idrss: number;
+        isrss: number;
+        minflt: number;
+        majflt: number;
+        nswap: number;
+        inblock: number;
+        oublock: number;
+        msgsnd: number;
+        msgrcv: number;
+        nsignals: number;
+        nvcsw: number;
+        nivcsw: number;
+      };
+      clock: string;
+    };
+  };
+  summary: {
+    active_count: number;
+    scheduled_count: number;
+    workers_count: number;
+  };
+}
+
+export interface ActiveTasks {
+  count: number;
+  tasks: TaskStatus[];
+}
+
+export interface TasksHistory {
+  completed: number;
+  failed: number;
+  total: number;
+  recent_tasks: TaskStatus[];
+}
+
 export interface TwitterUser {
   id: string;
   username: string;

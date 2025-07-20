@@ -45,58 +45,33 @@ export const StatusPanel: React.FC = () => {
 
   const fetchCeleryStats = async () => {
     try {
-      // Basic auth headers for Flower API
-      const authHeaders = {
-        'Authorization': 'Basic ' + btoa('user:pass'),
-        'Content-Type': 'application/json'
-      };
-
-      // Fetch stats from Celery Flower API
-      const response = await fetch('http://localhost:5555/api/workers', {
-        headers: authHeaders
-      });
+      // Fetch overview tasks data from the new API endpoint
+      const overviewResponse = await twitterAPI.getTasksOverview();
       
-      if (response.ok) {
-        const workers = await response.json();
+      if (overviewResponse.data) {
+        const overview = overviewResponse.data;
         
-        // Fetch task stats
-        const tasksResponse = await fetch('http://localhost:5555/api/tasks', {
-          headers: authHeaders
-        });
-        let taskStats = { active: 0, processed: 0, failed: 0 };
+        // Fetch history for processed and failed counts
+        const historyResponse = await twitterAPI.getTasksHistory();
+        let processedCount = 0;
+        let failedCount = 0;
         
-        if (tasksResponse.ok) {
-          const tasks = await tasksResponse.json();
-          
-          // Count tasks by state
-          Object.values(tasks).forEach((task: any) => {
-            switch (task.state) {
-              case 'PENDING':
-              case 'STARTED':
-              case 'RETRY':
-                taskStats.active++;
-                break;
-              case 'SUCCESS':
-                taskStats.processed++;
-                break;
-              case 'FAILURE':
-              case 'REVOKED':
-                taskStats.failed++;
-                break;
-            }
-          });
+        if (historyResponse.data) {
+          const history = historyResponse.data;
+          processedCount = history.completed || 0;
+          failedCount = history.failed || 0;
         }
-        
+
         setCeleryStats({
-          active: taskStats.active,
-          processed: taskStats.processed,
-          failed: taskStats.failed,
-          workers: Object.keys(workers).length,
+          active: overview.summary.active_count,
+          processed: processedCount,
+          failed: failedCount,
+          workers: overview.summary.workers_count,
         });
-        
+
         setCeleryStatus('online');
       } else {
-        console.error('Flower API authentication failed:', response.status, response.statusText);
+        console.error('Tasks API failed:', overviewResponse.message);
         setCeleryStatus('offline');
       }
     } catch (error) {
@@ -235,7 +210,7 @@ export const StatusPanel: React.FC = () => {
                 </div>
               </div>
                 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4">
                 <button
                   onClick={() => {
                     checkSystemHealth();
@@ -244,14 +219,7 @@ export const StatusPanel: React.FC = () => {
                   className="flex items-center justify-center space-x-2 px-4 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-xl hover:from-orange-600 hover:to-red-600 transition-all duration-200 transform hover:scale-105 shadow-lg"
                 >
                   <Activity className="w-4 h-4" />
-                  <span className="font-medium">Refresh</span>
-                </button>
-                <button
-                  onClick={() => window.open('http://localhost:5555', '_blank')}
-                  className="flex items-center justify-center space-x-2 px-4 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-xl hover:from-blue-600 hover:to-purple-600 transition-all duration-200 transform hover:scale-105 shadow-lg"
-                >
-                  <Server className="w-4 h-4" />
-                  <span className="font-medium">Flower UI</span>
+                  <span className="font-medium">Refresh Status</span>
                 </button>
               </div>
             </div>

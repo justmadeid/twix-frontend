@@ -92,58 +92,33 @@ export const HealthDashboard: React.FC = () => {
 
     const fetchCeleryStats = async () => {
         try {
-            // Basic auth headers for Flower API
-            const authHeaders = {
-                'Authorization': 'Basic ' + btoa('user:pass'),
-                'Content-Type': 'application/json'
-            };
-
-            // Fetch stats from Celery Flower API
-            const response = await fetch('http://localhost:5555/api/workers', {
-                headers: authHeaders
-            });
-
-            if (response.ok) {
-                const workers = await response.json();
-
-                // Fetch task stats
-                const tasksResponse = await fetch('http://localhost:5555/api/tasks', {
-                    headers: authHeaders
-                });
-                let taskStats = { active: 0, processed: 0, failed: 0 };
-
-                if (tasksResponse.ok) {
-                    const tasks = await tasksResponse.json();
-
-                    // Count tasks by state
-                    Object.values(tasks).forEach((task: any) => {
-                        switch (task.state) {
-                            case 'PENDING':
-                            case 'STARTED':
-                            case 'RETRY':
-                                taskStats.active++;
-                                break;
-                            case 'SUCCESS':
-                                taskStats.processed++;
-                                break;
-                            case 'FAILURE':
-                            case 'REVOKED':
-                                taskStats.failed++;
-                                break;
-                        }
-                    });
+            // Fetch overview tasks data from the new API endpoint
+            const overviewResponse = await twitterAPI.getTasksOverview();
+            
+            if (overviewResponse.data) {
+                const overview = overviewResponse.data;
+                
+                // Fetch history for processed and failed counts
+                const historyResponse = await twitterAPI.getTasksHistory();
+                let processedCount = 0;
+                let failedCount = 0;
+                
+                if (historyResponse.data) {
+                    const history = historyResponse.data;
+                    processedCount = history.completed || 0;
+                    failedCount = history.failed || 0;
                 }
 
                 setCeleryStats({
-                    active: taskStats.active,
-                    processed: taskStats.processed,
-                    failed: taskStats.failed,
-                    workers: Object.keys(workers).length,
+                    active: overview.summary.active_count,
+                    processed: processedCount,
+                    failed: failedCount,
+                    workers: overview.summary.workers_count,
                 });
 
                 setCeleryStatus('online');
             } else {
-                console.error('Flower API authentication failed:', response.status, response.statusText);
+                console.error('Tasks API failed:', overviewResponse.message);
                 setCeleryStatus('offline');
             }
         } catch (error) {
@@ -420,7 +395,7 @@ export const HealthDashboard: React.FC = () => {
                                 <div className="flex items-center justify-between mb-4">
                                     <div className="flex items-center space-x-4">
                                         <div className="p-3 bg-white rounded-xl shadow-sm border border-gray-200">
-                                            {getStatusIcon(systemStatus.api_status)}
+                                            {getCeleryStatusIcon()}
                                         </div>
                                         <div>
                                             <p className="font-semibold text-gray-900">API Status</p>
@@ -430,7 +405,7 @@ export const HealthDashboard: React.FC = () => {
                                         </div>
                                     </div>
                                     <div className="text-right">
-                                        <span className={`inline-flex px-4 py-2 rounded-xl text-sm font-semibold ${getStatusColor(systemStatus.api_status)} bg-white shadow-sm`}>
+                                        <span className={`inline-flex px-4 py-2 rounded-xl text-sm font-semibold ${getCeleryStatusColor()} bg-white shadow-sm`}>
                                             {systemStatus.api_status.charAt(0).toUpperCase() + systemStatus.api_status.slice(1)}
                                         </span>
                                         {systemStatus.response_time > 0 && (
@@ -472,11 +447,21 @@ export const HealthDashboard: React.FC = () => {
                                     <span className="font-medium">Refresh</span>
                                 </button>
                                 <button
-                                    onClick={() => window.open('http://localhost:5555', '_blank')}
+                                    // onClick={async () => {
+                                    //     try {
+                                    //         const historyResponse = await twitterAPI.getTasksHistory();
+                                    //         console.log('Tasks History:', historyResponse.data);
+                                    //         // You could show this in a modal or alert for now
+                                    //         alert(`Tasks History:\nCompleted: ${historyResponse.data?.completed || 0}\nFailed: ${historyResponse.data?.failed || 0}`);
+                                    //     } catch (error) {
+                                    //         console.error('Failed to fetch tasks history:', error);
+                                    //         alert('Failed to fetch tasks history');
+                                    //     }
+                                    // }}
                                     className="flex items-center justify-center space-x-2 px-4 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-xl hover:from-blue-600 hover:to-purple-600 transition-all duration-200 transform hover:scale-105 shadow-lg"
                                 >
                                     <Server className="w-4 h-4" />
-                                    <span className="font-medium">Flower UI</span>
+                                    <span className="font-medium">Tasks History</span>
                                 </button>
                             </div>
                         </div>
