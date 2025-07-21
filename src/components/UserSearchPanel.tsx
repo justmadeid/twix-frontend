@@ -155,7 +155,7 @@ export const UserSearchPanel: React.FC = () => {
                     <Search className="w-5 h-5 text-[#0fbcf9]" />
                   </div>
                   <label className="text-sm font-bold text-gray-700 group-hover:text-[#0fbcf9] transition-colors duration-300">
-                    Search Query
+                    Find Accounts
                   </label>
                 </div>
                 <input
@@ -163,7 +163,7 @@ export const UserSearchPanel: React.FC = () => {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full px-5 py-4 border-2 border-gray-200/50 rounded-xl focus:ring-2 focus:ring-[#0fbcf9] focus:border-[#0fbcf9] bg-white/70 backdrop-blur-sm transition-all duration-300 hover:bg-white/90 hover:border-[#0fbcf9]/30 text-sm placeholder-gray-400 shadow-sm focus:shadow-md"
-                  placeholder="Enter username, name, or keywords..."
+                  placeholder="Enter name"
                   required
                 />
               </div>
@@ -214,7 +214,7 @@ export const UserSearchPanel: React.FC = () => {
                 </div>
                 <button
                   type="submit"
-                  disabled={isLoading || currentTaskId !== null}
+                  disabled={isLoading || currentTaskId !== null || !searchQuery.trim()}
                   className="w-full px-5 py-4 bg-gradient-to-r from-[#0fbcf9] to-[#0fbcf9]/90 text-white rounded-xl hover:from-[#0fbcf9]/90 hover:to-[#0fbcf9] hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 text-sm font-bold shadow-lg backdrop-blur-sm border border-[#0fbcf9]/20"
                 >
                   {isLoading ? (

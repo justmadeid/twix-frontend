@@ -72,7 +72,7 @@ function App() {
       case 'status':
         return <HealthDashboard />; 
       default:
-        return <BentoGridPage onNavigate={setActivePanel} />;
+        return <BentoGridPage />;
     }
   };
   return (

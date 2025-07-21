@@ -291,7 +291,7 @@ export const FollowersPanel: React.FC = () => {
                   ) : (
                     <div className="flex items-center justify-center space-x-2">
                       {activeTab === 'followers' ? <UserMinus className="w-4 h-4" /> : <UserPlus className="w-4 h-4" />}
-                      <span>Refresh {activeTab}</span>
+                      <span>Get {activeTab}</span>
                     </div>
                   )}
                 </button>

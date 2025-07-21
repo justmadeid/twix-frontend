@@ -201,7 +201,7 @@ export const TimelinePanel: React.FC = () => {
                   ) : (
                     <div className="flex items-center justify-center space-x-2">
                       <MessageCircle className="w-4 h-4" />
-                      <span>Fetch Timeline</span>
+                      <span>Get Timeline</span>
                     </div>
                   )}
                 </button>

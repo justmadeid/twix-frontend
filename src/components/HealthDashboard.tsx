@@ -325,7 +325,7 @@ export const HealthDashboard: React.FC = () => {
                         <p className="text-gray-600">Failed to load health data</p>
                         <button
                             onClick={fetchHealthData}
-                            className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                            className="mt-4 px-6 py-2 bg-[#0fbcf9] text-white rounded-lg hover:bg-[#0da8e1] transition-colors"
                         >
                             Retry
                         </button>
@@ -441,7 +441,7 @@ export const HealthDashboard: React.FC = () => {
                                         checkSystemHealth();
                                         fetchCeleryStats();
                                     }}
-                                    className="flex items-center justify-center space-x-2 px-4 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-xl hover:from-orange-600 hover:to-red-600 transition-all duration-200 transform hover:scale-105 shadow-lg"
+                                    className="flex items-center justify-center space-x-2 px-4 py-3 border border-gray-200 text-orange-500 rounded-xl hover:from-orange-600 hover:to-red-600 transition-all duration-200 transform hover:scale-105 shadow-lg"
                                 >
                                     <Activity className="w-4 h-4" />
                                     <span className="font-medium">Refresh</span>
@@ -458,7 +458,7 @@ export const HealthDashboard: React.FC = () => {
                                     //         alert('Failed to fetch tasks history');
                                     //     }
                                     // }}
-                                    className="flex items-center justify-center space-x-2 px-4 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-xl hover:from-blue-600 hover:to-purple-600 transition-all duration-200 transform hover:scale-105 shadow-lg"
+                                    className="flex items-center justify-center space-x-2 px-4 py-3 text-blue-500 border border-gray-200 rounded-xl hover:from-blue-600 hover:to-purple-600 transition-all duration-200 transform hover:scale-105 shadow-lg"
                                 >
                                     <Server className="w-4 h-4" />
                                     <span className="font-medium">Tasks History</span>
@@ -660,7 +660,7 @@ export const HealthDashboard: React.FC = () => {
                                     onMouseEnter={() => setHoveredCard(service.service_name)}
                                     onMouseLeave={() => setHoveredCard(null)}
                                     onClick={() => setSelectedMetric(service.service_name)} className={`bg-[#0fbcf9]/5 backdrop-blur-sm border border-[#0fbcf9]/20 rounded-2xl p-6 transition-all duration-300 transform hover:scale-105 hover:shadow-xl hover:bg-[#0fbcf9]/10 hover:border-[#0fbcf9]/30 cursor-pointer group relative overflow-hidden ${hoveredCard === service.service_name ? 'ring-2 ring-[#0fbcf9]/50 shadow-xl bg-[#0fbcf9]/10' : ''
-                                        } ${selectedMetric === service.service_name ? 'ring-2 ring-purple-400 bg-purple-50/40' : ''
+                                        } ${selectedMetric === service.service_name ? 'ring-2 ring-blue-400 bg-blue-50/40' : ''
                                         }`}
                                 >
                                     <div className="relative z-10">
