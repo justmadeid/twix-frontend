@@ -242,7 +242,7 @@ export const FollowersPanel: React.FC = () => {
                 type="text"
                 value={username}
                 onChange={(e) => handleUsernameChange(e.target.value)}
-                onBlur={handleAutoFetch}
+                // onBlur={handleAutoFetch}
                 className="w-full px-5 py-4 border-2 border-gray-200/50 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white/70 backdrop-blur-sm transition-all duration-300 hover:bg-white/90 hover:border-indigo-500/30 text-sm placeholder-gray-400 shadow-sm focus:shadow-md"
                 placeholder="Enter username (without @) - Auto-fetches followers"
                 required

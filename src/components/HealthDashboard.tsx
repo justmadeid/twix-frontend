@@ -597,7 +597,7 @@ export const HealthDashboard: React.FC = () => {
                                 className="bg-white/60 backdrop-blur-sm border border-[#0fbcf9]/20 rounded-2xl p-4 text-center transform transition-all duration-300 hover:scale-105 hover:shadow-xl hover:bg-[#0fbcf9]/10 hover:border-[#0fbcf9]/40 cursor-pointer"
                                 onClick={() => setSelectedMetric('healthy')}
                             >
-                                    <div className={`text-2xl font-bold text-green-600 transition-all duration-500 ${animationKey ? 'animate-bounce' : ''}`}>
+                                    <div className={`text-2xl font-bold text-green-600 transition-all duration-500 ${animationKey ? 'animate-pulse' : ''}`}>
                                         {healthData.data.details.healthy_services}
                                     </div>
                                     <div className="text-sm text-gray-600">Healthy</div>
@@ -613,7 +613,7 @@ export const HealthDashboard: React.FC = () => {
                                     className="bg-white/60 backdrop-blur-sm border border-[#0fbcf9]/20 rounded-2xl p-4 text-center transform transition-all duration-300 hover:scale-105 hover:shadow-xl hover:bg-[#0fbcf9]/10 hover:border-[#0fbcf9]/40 cursor-pointer"
                                     onClick={() => setSelectedMetric('unhealthy')}
                                 >
-                                    <div className={`text-2xl font-bold text-red-600 transition-all duration-500 ${healthData.data.details.unhealthy_services > 0 && animationKey ? 'animate-bounce' : ''}`}>
+                                    <div className={`text-2xl font-bold text-red-600 transition-all duration-500 ${healthData.data.details.unhealthy_services > 0 && animationKey ? 'animate-pulse' : ''}`}>
                                         {healthData.data.details.unhealthy_services}
                                     </div>
                                     <div className="text-sm text-gray-600">Unhealthy</div>
@@ -627,7 +627,7 @@ export const HealthDashboard: React.FC = () => {
                             <div className="text-center">
                                 <div className={`text-3xl font-bold mb-2 transition-all duration-500 ${healthData.data.response_time_ms < 1000 ? 'text-green-600' :
                                     healthData.data.response_time_ms < 3000 ? 'text-yellow-600 animate-pulse' :
-                                        'text-red-600 animate-bounce'
+                                        'text-red-600 animate-pulse'
                                     }`}>
                                     {formatResponseTime(healthData.data.response_time_ms)}
                                 </div>

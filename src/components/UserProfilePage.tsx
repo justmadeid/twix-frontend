@@ -158,7 +158,7 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({ user, onBack }
         }
     }, [activeTab]);    return (
         <div className="min-h-screen">
-            <div className="max-w-6xl mx-auto px-4 py-8 space-y-8">
+            <div className="max-w-6xl mx-auto px-4 space-y-8">
                 {/* User Profile Section */}
                 <div className="bg-white/70 backdrop-blur-lg border border-white/20 rounded-3xl shadow-xl overflow-hidden relative">          {/* Back to Search Button - Upper Left Corner */}
                     <button
