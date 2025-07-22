@@ -138,7 +138,7 @@ export interface TwitterFollow {
   followers: number;
   following: number;
   blue_verified: boolean;
-  profile_image_url?: string;
+  profile_image_url_https?: string;
   created_at: string;
   // Additional comprehensive fields from API
   tweets?: number;
@@ -189,6 +189,7 @@ export interface TimelineTweet {
   tweets: string; // The tweet text content
   screen_name: string;
   name: string;
+  profile_image_url?: string;
   retweet: number;
   replies: number;
   link_media?: string;

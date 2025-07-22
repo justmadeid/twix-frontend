@@ -509,9 +509,9 @@ export const FollowersPanel: React.FC = () => {
                     {/* User Header */}
                     <div className="flex items-start space-x-3 mb-3">
                       <div className="flex-shrink-0">
-                        {user.profile_image_url ? (
+                        {user.profile_image_url_https ? (
                           <img
-                            src={user.profile_image_url}
+                            src={user.profile_image_url_https}
                             alt={user.name}
                             className={`rounded-2xl border-2 border-white shadow-sm group-hover:border-[#0dbcf9] transition-all duration-300 ${isLargeCard ? 'w-16 h-16' : 'w-12 h-12'}`}
                           />

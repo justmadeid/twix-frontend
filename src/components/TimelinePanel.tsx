@@ -47,7 +47,7 @@ export const TimelinePanel: React.FC = () => {
         followers_count: 0,
         following_count: 0,
         verified: false,
-        profile_image_url: '', // API doesn't provide this
+        profile_image_url: timeline.profile_image_url || '',
         created_at: new Date().toISOString(),
       },
       created_at: timeline.date || new Date().toISOString(),
@@ -590,7 +590,7 @@ export const TimelinePanel: React.FC = () => {
                         animationDelay: `${index * 0.1}s`,
                         // Remove fixed min-heights and let content determine the height
                       }}
-                    >
+                    >{}
                       {/* Tweet Header */}
                       <div className="flex items-start space-x-3 mb-3">
                         <div className="flex-shrink-0">
