@@ -128,6 +128,46 @@ export interface TwitterUser {
   profile_use_background_image?: boolean;
 }
 
+export interface TwitterFollow {
+  id: string;
+  username: string;
+  name: string;
+  bio?: string;
+  followers_count: number;
+  following_count: number;
+  followers: number;
+  following: number;
+  blue_verified: boolean;
+  profile_image_url?: string;
+  created_at: string;
+  // Additional comprehensive fields from API
+  tweets?: number;
+  favorites?: number;
+  location?: string;
+  profile_banner?: string;
+  profile_banner_url?: string;
+  url?: string;
+  description?: string;
+  statuses_count?: number;
+  favourites_count?: number;
+  listed_count?: number;
+  protected?: boolean;
+  default_profile?: boolean;
+  default_profile_image?: boolean;
+  geo_enabled?: boolean;
+  lang?: string;
+  time_zone?: string;
+  utc_offset?: number;
+  profile_text_color?: string;
+  profile_link_color?: string;
+  profile_sidebar_fill_color?: string;
+  profile_sidebar_border_color?: string;
+  profile_background_color?: string;
+  profile_background_image_url?: string;
+  profile_background_tile?: boolean;
+  profile_use_background_image?: boolean;
+}
+
 export interface Tweet {
   id: string;
   text: string;
